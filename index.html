@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOS 签名计算器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --titanium-light: #f5f5f7;
+            --titanium-medium: #e8e8ed;
+            --titanium-dark: #d2d2d7;
+            --titanium-darker: #aeaeb2;
+            --titanium-accent: #007aff;
+            --titanium-text: #1d1d1f;
+            --titanium-text-secondary: #86868b;
+            --titanium-background: #fbfbfd;
+            --titanium-card: #ffffff;
+            --titanium-border: #d2d2d7;
+            --titanium-shadow: rgba(0, 0, 0, 0.1);
+            --titanium-shadow-light: rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--titanium-background) 0%, var(--titanium-light) 100%);
+            color: var(--titanium-text);
+            line-height: 1.47059;
+            font-weight: 400;
+            letter-spacing: -0.022em;
+        }
+
+        .container {
+            background: var(--titanium-card);
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px var(--titanium-shadow-light), 0 1px 6px var(--titanium-shadow);
+            backdrop-filter: saturate(180%) blur(20px);
+            border: 1px solid var(--titanium-border);
+        }
+
+        h1 {
+            color: var(--titanium-text);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--titanium-text);
+            font-size: 15px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--titanium-border);
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            background-color: var(--titanium-card);
+            color: var(--titanium-text);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--titanium-accent);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        textarea {
+            height: 80px;
+            resize: vertical;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+
+        .query-params {
+            border: 1px solid var(--titanium-border);
+            border-radius: 8px;
+            padding: 16px;
+            background-color: var(--titanium-light);
+        }
+
+        .param-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .param-row input {
+            flex: 1;
+            margin: 0;
+        }
+
+        .remove-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+
+        .remove-btn:hover {
+            background: #d70015;
+            transform: scale(0.98);
+        }
+
+        .add-btn {
+            background: var(--titanium-accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .add-btn:hover {
+            background: #0051d5;
+            transform: scale(0.98);
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, var(--titanium-accent) 0%, #5856d6 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 24px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .calculate-btn:hover {
+            transform: scale(0.98);
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .flowchart-container {
+            background: var(--titanium-card);
+            border-radius: 16px;
+            border: 1px solid var(--titanium-border);
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--titanium-shadow-light);
+            height: fit-content;
+        }
+
+        .flowchart-title {
+            background: linear-gradient(135deg, var(--titanium-light) 0%, var(--titanium-medium) 100%);
+            padding: 20px 24px;
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--titanium-text);
+            border-bottom: 1px solid var(--titanium-border);
+        }
+
+        .mermaid {
+            text-align: center;
+            padding: 24px;
+            background: var(--titanium-background);
+        }
+
+        .node-details {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 1px solid var(--titanium-accent);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 24px 24px 24px;
+            display: none;
+        }
+
+        .output {
+            background: var(--titanium-card);
+            border-radius: 16px;
+            border: 1px solid var(--titanium-border);
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--titanium-shadow-light);
+        }
+
+        .output h3 {
+            background: linear-gradient(135deg, var(--titanium-light) 0%, var(--titanium-medium) 100%);
+            margin: 0;
+            padding: 20px 24px;
+            color: var(--titanium-text);
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--titanium-border);
+        }
+
+        .output-item {
+            margin: 0;
+            padding: 20px 24px;
+            background: var(--titanium-background);
+            border-bottom: 1px solid var(--titanium-border);
+        }
+
+        .output-item:last-child {
+            border-bottom: none;
+        }
+
+        .output-label {
+            font-weight: 600;
+            color: var(--titanium-text);
+            margin-bottom: 12px;
+            font-size: 17px;
+        }
+
+        .output-value {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            background: var(--titanium-card);
+            padding: 16px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 14px;
+            color: var(--titanium-text);
+            border: 1px solid var(--titanium-border);
+            line-height: 1.5;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 1px solid #28a745;
+            color: #155724;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .timestamp-group {
+            position: relative;
+        }
+
+        .timestamp-info {
+            font-size: 15px;
+            color: var(--titanium-text-secondary);
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        @media (max-width: 1024px) {
+            .results-container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            body {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 24px;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 28px;
+                margin-bottom: 32px;
+            }
+        }
+
+        /* 优化滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--titanium-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--titanium-darker);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--titanium-text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TOS 签名计算器</h1>
+        
+        <form id="signatureForm">
+            <div id="notification" class="notification"></div>
+            
+            <div class="two-column">
+                <div>
+                    <div class="form-group">
+                        <label for="accessKey">Access Key:</label>
+                        <input type="text" id="accessKey" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="secretKey">Secret Key:</label>
+                        <input type="text" id="secretKey" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="region">Region:</label>
+                        <input type="text" id="region" value="cn-beijing" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">Service:</label>
+                        <input type="text" id="service" value="tos" required>
+                    </div>
+                    
+                    <div class="form-group timestamp-group">
+                        <label for="timestampType">时间戳输入方式:</label>
+                        <select id="timestampType" onchange="toggleTimestampInput()">
+                            <option value="current">使用当前时间</option>
+                            <option value="datetime">选择日期时间</option>
+                            <option value="direct">直接输入TOS格式</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group timestamp-group" id="datetimeInput" style="display: none;">
+                        <label for="customTimestamp">选择日期时间:</label>
+                        <input type="datetime-local" id="customTimestamp" 
+                               step="1"
+                               title="支持精确到秒">
+                    </div>
+                    
+                    <div class="form-group timestamp-group" id="directInput" style="display: none;">
+                        <label for="directTimestamp">TOS时间戳格式 (如: 20250812T142648Z):</label>
+                        <input type="text" id="directTimestamp" 
+                               placeholder="20250812T142648Z"
+                               pattern="[0-9]{8}T[0-9]{6}Z"
+                               title="格式: YYYYMMDDTHHMMSSZ">
+                        <div class="timestamp-info">格式: YYYYMMDDTHHMMSSZ</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="method">HTTP Method:</label>
+                        <select id="method" required>
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="HEAD">HEAD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="form-group">
+                        <label for="host">Host:</label>
+                        <input type="text" id="host" placeholder="example.tos-cn-beijing.volces.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="path">Path:</label>
+                        <input type="text" id="path" value="/" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Query Parameters (可选):</label>
+                        <div class="query-params" id="queryParams">
+                            <div class="param-row">
+                                <input type="text" placeholder="Key (可选)" class="param-key">
+                                <input type="text" placeholder="Value (可选)" class="param-value">
+                                <button type="button" class="remove-btn" onclick="removeParam(this)">删除</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-btn" onclick="addParam()">添加参数</button>
+                        <div class="timestamp-info">默认为空，如不需要可以不填</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Custom Headers (可选):</label>
+                        <div class="query-params" id="customHeaders">
+                            <div class="param-row">
+                                <input type="text" placeholder="Header Name (如: x-tos-meta-example)" class="header-key">
+                                <input type="text" placeholder="Header Value" class="header-value">
+                                <button type="button" class="remove-btn" onclick="removeHeader(this)">删除</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-btn" onclick="addHeader()">添加Header</button>
+                        <div class="timestamp-info">自动包含必需的 headers: host, x-tos-date, x-tos-content-sha256</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="requestBody">Request Body:</label>
+                        <textarea id="requestBody" placeholder="请求体内容（JSON等）"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="calculate-btn">计算签名</button>
+        </form>
+        
+        <div class="results-container" id="results-section" style="display: none;">
+            <div id="flowchart-section" class="flowchart-container">
+                <h3 class="flowchart-title">TOS 签名计算流程图</h3>
+                <div class="mermaid" id="signature-flowchart">
+                    <!-- 流程图将在这里渲染 -->
+                </div>
+                <div id="node-details" class="node-details">
+                    <strong>节点详细信息</strong>
+                    <div id="node-content"></div>
+                </div>
+            </div>
+            
+            <div id="output" class="output">
+                <h3>签名计算过程</h3>
+                
+                <div class="output-item">
+                    <div class="output-label">1. 基础参数</div>
+                    <div class="output-value" id="basicParamsOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">2. 时间戳处理</div>
+                    <div class="output-value" id="timestampOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">3. Payload Hash 计算</div>
+                    <div class="output-value" id="payloadHashOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">4. Query Parameters 处理</div>
+                    <div class="output-value" id="queryParamsOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">5. Headers 处理</div>
+                    <div class="output-value" id="headersToSignOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">6. Canonical Request 构造</div>
+                    <div class="output-value" id="canonicalRequestOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">7. String To Sign 构造</div>
+                    <div class="output-value" id="stringToSignOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">8. 密钥派生过程</div>
+                    <div class="output-value" id="keyDerivationOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">9. 最终签名</div>
+                    <div class="output-value" id="signatureOutput"></div>
+                </div>
+                
+                <div class="output-item">
+                    <div class="output-label">10. Authorization Header</div>
+                    <div class="output-value" id="authHeaderOutput"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 等待页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保 Mermaid 正确初始化
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'default',
+                    flowchart: {
+                        useMaxWidth: true,
+                        htmlLabels: true,
+                        curve: 'cardinal'
+                    }
+                });
+            }
+        });
+
+        // 存储节点详细信息
+        let nodeDetails = {};
+        let chartId = 0; // 用于生成唯一ID
+
+        // 生成流程图
+        function generateFlowchart(data) {
+            const flowchartDefinition = `
+flowchart TD
+    %% 输入参数
+    A1["Access Key<br/>${data.accessKey ? data.accessKey.substring(0, 8) + '...' : ''}"]
+    A2["Secret Key<br/>[已提供]"]
+    A3["Region<br/>${data.region}"]
+    A4["Service<br/>${data.service}"]
+    A5["HTTP Method<br/>${data.method}"]
+    A6["Host<br/>${data.host}"]
+    A7["Path<br/>${data.path}"]
+    A8["Request Body<br/>${data.requestBody ? (data.requestBody.length > 20 ? data.requestBody.substring(0, 20) + '...' : data.requestBody) : '(空)'}"]
+    
+    %% 时间戳处理
+    B1{"生成时间戳"}
+    B2["AMZ Date<br/>${data.amzDate}"]
+    B3["Date Stamp<br/>${data.dateStamp}"]
+    
+    %% Payload Hash 计算
+    C1{"计算 SHA256"}
+    C2["Payload Hash<br/>${data.payloadHash.substring(0, 16)}..."]
+    
+    %% Query String 处理
+    D1{"规范化查询参数"}
+    D2["Canonical Query<br/>${data.canonicalQueryString || '(空)'}"]
+    
+    %% Headers 处理
+    E1{"收集 Headers"}
+    E2["Host Header<br/>host:${data.host}"]
+    E3["Date Header<br/>x-tos-date:${data.amzDate}"]
+    E4["Content Header<br/>x-tos-content-sha256:${data.payloadHash.substring(0, 12)}..."]
+    E5{"排序 Headers"}
+    E6["Signed Headers<br/>${data.signedHeaders}"]
+    E7["Canonical Headers<br/>${data.canonicalHeaders.split('\\n').length - 1} headers"]
+    
+    %% Canonical Request 构造
+    F1{"构造 Canonical Request"}
+    F2["Canonical Request<br/>[Method + URI + Query + Headers + Hash]"]
+    F3{"SHA256 Hash"}
+    F4["Request Hash<br/>${data.hashCR.substring(0, 16)}..."]
+    
+    %% String To Sign 构造
+    G1{"构造 String To Sign"}
+    G2["Credential Scope<br/>${data.credentialScope}"]
+    G3["String To Sign<br/>[Algorithm + Date + Scope + Hash]"]
+    
+    %% 密钥派生
+    H1{"HMAC-SHA256<br/>(DateStamp, SecretKey)"}
+    H2["kDate<br/>[中间密钥1]"]
+    H3{"HMAC-SHA256<br/>(Region, kDate)"}
+    H4["kRegion<br/>[中间密钥2]"]
+    H5{"HMAC-SHA256<br/>(Service, kRegion)"}
+    H6["kService<br/>[中间密钥3]"]
+    H7{"HMAC-SHA256<br/>('request', kService)"}
+    H8["kSigning<br/>${data.kSigning.substring(0, 16)}..."]
+    
+    %% 最终签名
+    I1{"HMAC-SHA256<br/>(StringToSign, kSigning)"}
+    I2["Final Signature<br/>${data.signature.substring(0, 16)}..."]
+    
+    %% Authorization Header
+    J1{"构造 Authorization"}
+    J2["Authorization Header<br/>TOS4-HMAC-SHA256 Credential=..."]
+    
+    %% 连接关系
+    %% 时间戳流
+    B1 --> B2
+    B1 --> B3
+    
+    %% Payload Hash 流
+    A8 --> C1
+    C1 --> C2
+    
+    %% Query 流
+    D1 --> D2
+    
+    %% Headers 流
+    A6 --> E2
+    B2 --> E3
+    C2 --> E4
+    E1 --> E2
+    E1 --> E3  
+    E1 --> E4
+    E2 --> E5
+    E3 --> E5
+    E4 --> E5
+    E5 --> E6
+    E5 --> E7
+    
+    %% Canonical Request 流
+    A5 --> F1
+    A7 --> F1
+    D2 --> F1
+    E6 --> F1
+    E7 --> F1
+    C2 --> F1
+    F1 --> F2
+    F2 --> F3
+    F3 --> F4
+    
+    %% String To Sign 流
+    B2 --> G1
+    B3 --> G2
+    A3 --> G2
+    A4 --> G2
+    G2 --> G1
+    F4 --> G1
+    G1 --> G3
+    
+    %% 密钥派生流
+    A2 --> H1
+    B3 --> H1
+    H1 --> H2
+    A3 --> H3
+    H2 --> H3
+    H3 --> H4
+    A4 --> H5
+    H4 --> H5
+    H5 --> H6
+    H6 --> H7
+    H7 --> H8
+    
+    %% 最终签名流
+    G3 --> I1
+    H8 --> I1
+    I1 --> I2
+    
+    %% Authorization 流
+    A1 --> J1
+    G2 --> J1
+    E6 --> J1
+    I2 --> J1
+    J1 --> J2
+    
+    %% 样式
+    classDef dataNode fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,color:#1565c0;
+    classDef processNode fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#e65100;
+    classDef resultNode fill:#e8f5e8,stroke:#4caf50,stroke-width:2px,color:#2e7d32;
+    
+    class A1,A2,A3,A4,A5,A6,A7,A8,B2,B3,C2,D2,E2,E3,E4,E6,E7,F2,F4,G2,G3,H2,H4,H6,H8,I2,J2 dataNode;
+    class B1,C1,D1,E1,E5,F1,F3,G1,H1,H3,H5,H7,I1,J1 processNode;
+            `;
+            
+            // 存储节点详细信息
+            nodeDetails = {
+                // 输入参数节点
+                A1: {
+                    title: 'Access Key',
+                    content: `完整的Access Key:\n${data.accessKey || '[未提供]'}`
+                },
+                A2: {
+                    title: 'Secret Key',
+                    content: `Secret Key: [出于安全考虑不显示完整内容]\n长度: ${data.secretKey ? data.secretKey.length + ' 字符' : '未提供'}`
+                },
+                A3: {
+                    title: 'Region 参数',
+                    content: `Region: ${data.region}\n用途: 指定服务的地理区域`
+                },
+                A4: {
+                    title: 'Service 参数', 
+                    content: `Service: ${data.service}\n用途: 指定要访问的服务类型`
+                },
+                A5: {
+                    title: 'HTTP Method',
+                    content: `HTTP Method: ${data.method}\n支持的方法: GET, POST, PUT, DELETE, HEAD`
+                },
+                A6: {
+                    title: 'Host 参数',
+                    content: `Host: ${data.host}\n用途: 目标服务器地址`
+                },
+                A7: {
+                    title: 'Path 参数',
+                    content: `Path: ${data.path}\n用途: 请求的资源路径`
+                },
+                A8: {
+                    title: 'Request Body',
+                    content: `Request Body:\n${data.requestBody || '(空请求体)'}\n长度: ${(data.requestBody || '').length} 字节`
+                },
+                
+                // 时间戳处理节点
+                B1: {
+                    title: '时间戳生成过程',
+                    content: `时间戳类型: ${data.timestampType}\n原始时间: ${data.originalTime}\n处理规则: 将ISO时间转换为YYYYMMDDTHHMMSSZ格式`
+                },
+                B2: {
+                    title: 'AMZ Date 时间戳',
+                    content: `AMZ Date: ${data.amzDate}\n格式: YYYYMMDDTHHMMSSZ\n用途: 用于Headers和StringToSign`
+                },
+                B3: {
+                    title: 'Date Stamp',
+                    content: `Date Stamp: ${data.dateStamp}\n格式: YYYYMMDD\n用途: 用于密钥派生和凭证范围`
+                },
+                
+                // Payload Hash 节点
+                C1: {
+                    title: 'SHA256 计算过程',
+                    content: `输入: Request Body\n算法: SHA256\n输出: 64字符十六进制字符串\n\n如果Body为空则计算空字符串的SHA256\n如果是PUT操作且无法获取内容则使用'UNSIGNED-PAYLOAD'`
+                },
+                C2: {
+                    title: 'Payload Hash 结果',
+                    content: `Payload Hash: ${data.payloadHash}\n长度: ${data.payloadHash.length} 字符\n算法: SHA256\n用途: 用于Headers和CanonicalRequest`
+                },
+                
+                // Query Parameters 节点
+                D1: {
+                    title: 'Query参数规范化过程',
+                    content: `处理步骤:\n1. 收集所有查询参数\n2. 按参数名排序\n3. 对参数名和值进行URL编码\n4. 拼接为key=value格式`
+                },
+                D2: {
+                    title: 'Canonical Query String',
+                    content: `Canonical Query String: "${data.canonicalQueryString}"\n参数数量: ${data.paramCount}\n详情: ${data.paramDetails}`
+                },
+                
+                // Headers 处理节点
+                E1: {
+                    title: 'Headers 收集过程',
+                    content: `收集的Headers类型:\n1. host (必需)\n2. x-tos-date (必需) \n3. x-tos-content-sha256 (必需)\n4. x-tos-meta-* (可选)\n5. 其他需要签名的headers`
+                },
+                E2: {
+                    title: 'Host Header',
+                    content: `Header名: host\nHeader值: ${data.host}\n用途: 指定目标服务器\n必需: 是`
+                },
+                E3: {
+                    title: 'Date Header',
+                    content: `Header名: x-tos-date\nHeader值: ${data.amzDate}\n用途: 请求时间戳\n必需: 是`
+                },
+                E4: {
+                    title: 'Content SHA256 Header',
+                    content: `Header名: x-tos-content-sha256\nHeader值: ${data.payloadHash}\n用途: 请求体内容哈希\n必需: 是`
+                },
+                E5: {
+                    title: 'Headers 排序过程',
+                    content: `排序规则: 按Header名称字母顺序排序\n排序后顺序: ${data.signedHeaders.split(';').join(', ')}`
+                },
+                E6: {
+                    title: 'Signed Headers',
+                    content: `Signed Headers: ${data.signedHeaders}\n格式: 用分号分隔的小写header名列表\n用途: 告知哪些headers参与了签名`
+                },
+                E7: {
+                    title: 'Canonical Headers',
+                    content: `Canonical Headers:\n${data.canonicalHeaders}\n格式: 每行一个header，格式为"name:value\\n"\n用途: 构造CanonicalRequest的一部分`
+                },
+                
+                // Canonical Request 节点
+                F1: {
+                    title: 'Canonical Request 构造过程',
+                    content: `构造规则:\nMethod + "\\n" +\nURI + "\\n" +\nQueryString + "\\n" +\nCanonicalHeaders + "\\n" +\nSignedHeaders + "\\n" +\nPayloadHash`
+                },
+                F2: {
+                    title: 'Canonical Request',
+                    content: `Canonical Request:\n${data.canonicalRequest}\n\n长度: ${data.canonicalRequest.length} 字符`
+                },
+                F3: {
+                    title: 'Canonical Request SHA256',
+                    content: `算法: SHA256\n输入: Canonical Request 字符串\n输出: 64字符十六进制字符串`
+                },
+                F4: {
+                    title: 'Request Hash',
+                    content: `Request Hash: ${data.hashCR}\n长度: ${data.hashCR.length} 字符\n算法: SHA256\n用途: 构造StringToSign`
+                },
+                
+                // String To Sign 节点
+                G1: {
+                    title: 'String To Sign 构造过程',
+                    content: `构造规则:\nAlgorithm + "\\n" +\nTimestamp + "\\n" +\nCredentialScope + "\\n" +\nHashedCanonicalRequest`
+                },
+                G2: {
+                    title: 'Credential Scope',
+                    content: `Credential Scope: ${data.credentialScope}\n格式: YYYYMMDD/region/service/request\n组成: DateStamp/${data.region}/${data.service}/request`
+                },
+                G3: {
+                    title: 'String To Sign',
+                    content: `String To Sign:\n${data.stringToSign}\n\n长度: ${data.stringToSign.length} 字符`
+                },
+                
+                // 密钥派生节点
+                H1: {
+                    title: 'kDate 计算过程',
+                    content: `算法: HMAC-SHA256\n密钥: Secret Key\n消息: "${data.dateStamp}"\n输出: kDate (二进制密钥)`
+                },
+                H2: {
+                    title: 'kDate 中间密钥',
+                    content: `kDate: [中间密钥1]\n算法: HMAC-SHA256\n输入密钥: Secret Key\n消息: ${data.dateStamp}\n用途: 计算kRegion的密钥`
+                },
+                H3: {
+                    title: 'kRegion 计算过程',
+                    content: `算法: HMAC-SHA256\n密钥: kDate\n消息: "${data.region}"\n输出: kRegion (二进制密钥)`
+                },
+                H4: {
+                    title: 'kRegion 中间密钥',
+                    content: `kRegion: [中间密钥2]\n算法: HMAC-SHA256\n输入密钥: kDate\n消息: ${data.region}\n用途: 计算kService的密钥`
+                },
+                H5: {
+                    title: 'kService 计算过程',
+                    content: `算法: HMAC-SHA256\n密钥: kRegion\n消息: "${data.service}"\n输出: kService (二进制密钥)`
+                },
+                H6: {
+                    title: 'kService 中间密钥',
+                    content: `kService: [中间密钥3]\n算法: HMAC-SHA256\n输入密钥: kRegion\n消息: ${data.service}\n用途: 计算kSigning的密钥`
+                },
+                H7: {
+                    title: 'kSigning 计算过程',
+                    content: `算法: HMAC-SHA256\n密钥: kService\n消息: "request"\n输出: kSigning (最终签名密钥)`
+                },
+                H8: {
+                    title: 'kSigning 最终密钥',
+                    content: `kSigning: ${data.kSigning}\n长度: 64字符 (32字节十六进制)\n算法: HMAC-SHA256\n输入密钥: kService\n消息: "request"\n用途: 计算最终签名`
+                },
+                
+                // 最终签名节点
+                I1: {
+                    title: '最终签名计算过程',
+                    content: `算法: HMAC-SHA256\n密钥: kSigning\n消息: String To Sign\n输出: 最终签名 (64字符十六进制)`
+                },
+                I2: {
+                    title: '最终签名结果',
+                    content: `Final Signature: ${data.signature}\n长度: ${data.signature.length} 字符\n算法: HMAC-SHA256\n输入密钥: kSigning\n消息: String To Sign\n用途: 构造Authorization Header`
+                },
+                
+                // Authorization Header 节点
+                J1: {
+                    title: 'Authorization 构造过程',
+                    content: `格式: Algorithm Credential=AccessKey/CredentialScope, SignedHeaders=headers, Signature=signature\n\n组成部分:\n- Algorithm: ${data.algorithm}\n- Credential: ${data.accessKey}/${data.credentialScope}\n- SignedHeaders: ${data.signedHeaders}\n- Signature: ${data.signature}`
+                },
+                J2: {
+                    title: 'Authorization Header',
+                    content: `Authorization Header:\n${data.authHeader}\n\n长度: ${data.authHeader.length} 字符\n用途: HTTP请求的Authorization头部`
+                }
+            };
+            
+            return flowchartDefinition;
+        }
+
+        // 显示节点详细信息
+        function showDetails(nodeId) {
+            const details = nodeDetails[nodeId];
+            if (details) {
+                document.getElementById('node-content').innerHTML = 
+                    `<h4>${details.title}</h4><pre>${details.content}</pre>`;
+                document.getElementById('node-details').style.display = 'block';
+            }
+        }
+
+        // 渲染流程图
+        async function renderFlowchart(data) {
+            try {
+                if (typeof mermaid === 'undefined') {
+                    throw new Error('Mermaid library not loaded');
+                }
+                
+                chartId++;
+                const currentChartId = `mermaid-chart-${chartId}`;
+                const flowchartDef = generateFlowchart(data);
+                const element = document.getElementById('signature-flowchart');
+                
+                // 清空之前的内容
+                element.innerHTML = `<div id="${currentChartId}" class="mermaid">${flowchartDef}</div>`;
+                
+                // 使用 Mermaid 渲染
+                const { svg } = await mermaid.render(currentChartId + '-svg', flowchartDef);
+                element.innerHTML = svg;
+                
+                // 添加点击事件监听器 - 增加延迟确保DOM完全加载
+                setTimeout(() => {
+                    addClickListeners();
+                }, 500);
+            } catch (error) {
+                console.error('Mermaid rendering error:', error);
+                // 降级处理：显示文本版本
+                const element = document.getElementById('signature-flowchart');
+                element.innerHTML = `
+                    <div style="text-align: left; background: var(--titanium-background); padding: 20px; border-radius: 4px;">
+                        <p><strong>流程图渲染失败，显示文本版本：</strong></p>
+                        <div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', Monaco, monospace; white-space: pre-line; color: var(--titanium-text);">
+                            1. 🔧 基础参数: Method=${data.method}, Host=${data.host}, Path=${data.path}
+                            2. ⏰ 时间戳处理: ${data.amzDate}
+                            3. 📝 Payload Hash: ${data.payloadHash}
+                            4. 🔍 Query Parameters: ${data.canonicalQueryString}
+                            5. 📋 Headers 处理: ${data.signedHeaders}
+                            6. 📄 Canonical Request: 已构造
+                            7. 🔐 String To Sign: 已构造
+                            8. 🔑 密钥派生: kSigning=${data.kSigning}
+                            9. ✅ 最终签名: ${data.signature}
+                            10. 📤 Authorization Header: 已生成
+                        </div>
+                        <p style="margin-top: 15px;"><small>点击右侧详细输出查看完整信息</small></p>
+                    </div>
+                `;
+            }
+        }
+
+        // 添加点击事件监听器
+        function addClickListeners() {
+            console.log('添加点击事件监听器');
+            const container = document.getElementById('signature-flowchart');
+            
+            if (!container) {
+                console.error('未找到流程图容器');
+                return;
+            }
+            
+            // 移除之前的事件监听器，确保不重复绑定
+            const existingHandler = container._clickHandler;
+            if (existingHandler) {
+                container.removeEventListener('click', existingHandler);
+                console.log('移除了之前的事件监听器');
+            }
+            
+            // 创建新的处理函数并保存引用
+            const newHandler = (event) => handleNodeClick(event);
+            container._clickHandler = newHandler;
+            
+            // 添加新的事件监听器
+            container.addEventListener('click', newHandler);
+            
+            // 查找SVG内的所有节点并添加调试信息
+            setTimeout(() => {
+                const svgNodes = container.querySelectorAll('g.node, g.flowchart-node, rect, text, g');
+                console.log(`找到 ${svgNodes.length} 个可能的节点元素`);
+                
+                // 为每个节点添加调试样式
+                svgNodes.forEach((node, index) => {
+                    if (node.textContent && node.textContent.trim()) {
+                        node.style.cursor = 'pointer';
+                        console.log(`节点 ${index}:`, node.tagName, node.textContent.substring(0, 50));
+                    }
+                });
+            }, 100);
+            
+            console.log('新的事件监听器已添加到容器');
+        }
+        
+        function handleNodeClick(event) {
+            console.log('点击事件触发', event.target);
+            console.log('点击位置:', event.clientX, event.clientY);
+            
+            // 查找最近的节点元素
+            let targetNode = event.target;
+            let nodeId = null;
+            
+            // 获取目标节点及其最近父节点的文本内容
+            let nodeText = targetNode.textContent || '';
+            let parentText = '';
+            
+            // 查找父节点文本（限制查找范围）
+            let parent = targetNode.parentElement;
+            if (parent && parent.tagName !== 'svg') {
+                parentText = parent.textContent || '';
+            }
+            
+            // 使用较短的文本进行匹配，避免匹配到整个图表的文本
+            let textToMatch = nodeText.length <= parentText.length ? nodeText : parentText;
+            
+            // 如果文本太长（超过100个字符），可能是整个图表的文本，尝试使用更精确的文本
+            if (textToMatch.length > 100) {
+                textToMatch = nodeText.length < 100 ? nodeText : textToMatch.substring(0, 100);
+            }
+            
+            console.log('用于匹配的文本内容:', textToMatch);
+            console.log('目标元素:', targetNode.tagName, targetNode.className);
+            console.log('父元素:', parent ? parent.tagName : 'none', parent ? parent.className : 'none');
+            
+            // 更精确的文本匹配 - 使用更严格的匹配条件
+            // 输入参数节点
+            if (textToMatch === 'Access Key' || (textToMatch.includes('Access Key') && textToMatch.length < 50)) {
+                nodeId = 'A1';
+            } else if (textToMatch === 'Secret Key' || (textToMatch.includes('Secret Key') && textToMatch.includes('[已提供]'))) {
+                nodeId = 'A2';
+            } else if ((textToMatch.includes('Region') && !textToMatch.includes('kRegion')) && textToMatch.length < 50) {
+                nodeId = 'A3';
+            } else if ((textToMatch.includes('Service') && !textToMatch.includes('kService')) && textToMatch.length < 50) {
+                nodeId = 'A4';
+            } else if (textToMatch.includes('HTTP Method') && textToMatch.length < 50) {
+                nodeId = 'A5';
+            } else if ((textToMatch.includes('Host') && !textToMatch.includes('Header')) && textToMatch.length < 50) {
+                nodeId = 'A6';
+            } else if (textToMatch.includes('Path') && textToMatch.length < 50) {
+                nodeId = 'A7';
+            } else if (textToMatch.includes('Request Body') && textToMatch.length < 50) {
+                nodeId = 'A8';
+            }
+            
+            // 时间戳节点
+            else if (textToMatch.includes('生成时间戳') && textToMatch.length < 50) {
+                nodeId = 'B1';
+            } else if (textToMatch.includes('AMZ Date') && textToMatch.length < 50) {
+                nodeId = 'B2';
+            } else if (textToMatch.includes('Date Stamp') && textToMatch.length < 50) {
+                nodeId = 'B3';
+            }
+            
+            // Payload Hash 节点
+            else if (textToMatch.includes('计算 SHA256') && textToMatch.length < 50) {
+                nodeId = 'C1';
+            } else if (textToMatch.includes('Payload Hash') && textToMatch.length < 50) {
+                nodeId = 'C2';
+            }
+            
+            // Query 节点
+            else if (textToMatch.includes('规范化查询参数') && textToMatch.length < 50) {
+                nodeId = 'D1';
+            } else if (textToMatch.includes('Canonical Query') && textToMatch.length < 50) {
+                nodeId = 'D2';
+            }
+            
+            // Headers 节点
+            else if (textToMatch.includes('收集 Headers') && textToMatch.length < 50) {
+                nodeId = 'E1';
+            } else if (textToMatch.includes('Host Header') && textToMatch.length < 80) {
+                nodeId = 'E2';
+            } else if (textToMatch.includes('Date Header') && textToMatch.length < 80) {
+                nodeId = 'E3';
+            } else if (textToMatch.includes('Content Header') && textToMatch.length < 80) {
+                nodeId = 'E4';
+            } else if (textToMatch.includes('排序 Headers') && textToMatch.length < 50) {
+                nodeId = 'E5';
+            } else if (textToMatch.includes('Signed Headers') && textToMatch.length < 100) {
+                nodeId = 'E6';
+            } else if (textToMatch.includes('Canonical Headers') && textToMatch.includes('headers') && textToMatch.length < 100) {
+                nodeId = 'E7';
+            }
+            
+            // Canonical Request 节点
+            else if (textToMatch.includes('构造 Canonical Request') && textToMatch.length < 50) {
+                nodeId = 'F1';
+            } else if (textToMatch.includes('Canonical Request') && textToMatch.includes('[Method') && textToMatch.length < 100) {
+                nodeId = 'F2';
+            } else if (textToMatch.includes('SHA256 Hash') && textToMatch.length < 50) {
+                nodeId = 'F3';
+            } else if (textToMatch.includes('Request Hash') && textToMatch.length < 50) {
+                nodeId = 'F4';
+            }
+            
+            // String To Sign 节点
+            else if (textToMatch.includes('构造 String To Sign') && textToMatch.length < 50) {
+                nodeId = 'G1';
+            } else if (textToMatch.includes('Credential Scope') && textToMatch.length < 100) {
+                nodeId = 'G2';
+            } else if (textToMatch.includes('String To Sign') && textToMatch.includes('[Algorithm') && textToMatch.length < 100) {
+                nodeId = 'G3';
+            }
+            
+            // 密钥派生节点
+            else if (textToMatch.includes('HMAC-SHA256') && textToMatch.includes('DateStamp') && textToMatch.length < 100) {
+                nodeId = 'H1';
+            } else if (textToMatch.includes('kDate') && textToMatch.includes('[中间密钥1]') && textToMatch.length < 50) {
+                nodeId = 'H2';
+            } else if (textToMatch.includes('HMAC-SHA256') && textToMatch.includes('Region') && !textToMatch.includes('DateStamp') && textToMatch.length < 100) {
+                nodeId = 'H3';
+            } else if (textToMatch.includes('kRegion') && textToMatch.includes('[中间密钥2]') && textToMatch.length < 50) {
+                nodeId = 'H4';
+            } else if (textToMatch.includes('HMAC-SHA256') && textToMatch.includes('Service') && !textToMatch.includes('Region') && textToMatch.length < 100) {
+                nodeId = 'H5';
+            } else if (textToMatch.includes('kService') && textToMatch.includes('[中间密钥3]') && textToMatch.length < 50) {
+                nodeId = 'H6';
+            } else if (textToMatch.includes("'request'") && textToMatch.length < 100) {
+                nodeId = 'H7';
+            } else if (textToMatch.includes('kSigning') && !textToMatch.includes('StringToSign') && textToMatch.length < 50) {
+                nodeId = 'H8';
+            }
+            
+            // 最终签名节点
+            else if (textToMatch.includes('HMAC-SHA256') && textToMatch.includes('StringToSign') && textToMatch.length < 100) {
+                nodeId = 'I1';
+            } else if (textToMatch.includes('Final Signature') && textToMatch.length < 50) {
+                nodeId = 'I2';
+            }
+            
+            // Authorization 节点
+            else if (textToMatch.includes('构造 Authorization') && textToMatch.length < 50) {
+                nodeId = 'J1';
+            } else if (textToMatch.includes('Authorization Header') && textToMatch.includes('TOS4') && textToMatch.length < 100) {
+                nodeId = 'J2';
+            }
+            
+            if (nodeId) {
+                console.log('匹配到节点ID:', nodeId);
+                showDetails(nodeId);
+                
+                // 添加视觉反馈
+                const nodeDetailsDiv = document.getElementById('node-details');
+                if (nodeDetailsDiv) {
+                    nodeDetailsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            } else {
+                console.log('未找到匹配的节点');
+                console.log('节点文本:', nodeText);
+                console.log('父节点文本:', parentText);
+                console.log('用于匹配的文本:', textToMatch);
+                
+                // 显示通用信息，帮助调试
+                document.getElementById('node-content').innerHTML = 
+                    `<h4>调试信息</h4><pre>点击的元素: ${targetNode.tagName}\n节点文本: ${nodeText}\n父节点文本: ${parentText.substring(0, 200)}${parentText.length > 200 ? '...' : ''}\n匹配文本: ${textToMatch}\n\n请点击流程图中的具体节点查看详细信息。</pre>`;
+                document.getElementById('node-details').style.display = 'block';
+            }
+            
+            // 不要阻止事件传播，让点击事件能够继续工作
+            // event.preventDefault();
+            // event.stopPropagation();
+        }
+        function addParam() {
+            const container = document.getElementById('queryParams');
+            const paramRow = document.createElement('div');
+            paramRow.className = 'param-row';
+            paramRow.innerHTML = `
+                <input type="text" placeholder="Key (可选)" class="param-key">
+                <input type="text" placeholder="Value (可选)" class="param-value">
+                <button type="button" class="remove-btn" onclick="removeParam(this)">删除</button>
+            `;
+            container.appendChild(paramRow);
+        }
+
+        function removeParam(button) {
+            button.parentElement.remove();
+        }
+
+        function addHeader() {
+            const container = document.getElementById('customHeaders');
+            const headerRow = document.createElement('div');
+            headerRow.className = 'param-row';
+            headerRow.innerHTML = `
+                <input type="text" placeholder="Header Name (如: x-tos-meta-example)" class="header-key">
+                <input type="text" placeholder="Header Value" class="header-value">
+                <button type="button" class="remove-btn" onclick="removeHeader(this)">删除</button>
+            `;
+            container.appendChild(headerRow);
+        }
+
+        function removeHeader(button) {
+            button.parentElement.remove();
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+        }
+
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'none';
+        }
+
+        function processHost(hostInput) {
+            let originalHost = hostInput.trim();
+            let processedHost = originalHost;
+            let changes = [];
+
+            // 移除 http:// 或 https:// 前缀
+            if (processedHost.startsWith('http://')) {
+                processedHost = processedHost.substring(7);
+                changes.push('移除了 http:// 前缀');
+            } else if (processedHost.startsWith('https://')) {
+                processedHost = processedHost.substring(8);
+                changes.push('移除了 https:// 前缀');
+            }
+
+            // 移除尾部的 / 
+            if (processedHost.endsWith('/')) {
+                processedHost = processedHost.slice(0, -1);
+                changes.push('移除了尾部的 /');
+            }
+
+            return { processedHost, changes, originalHost };
+        }
+
+        function toggleTimestampInput() {
+            const timestampType = document.getElementById('timestampType').value;
+            const datetimeInput = document.getElementById('datetimeInput');
+            const directInput = document.getElementById('directInput');
+            
+            datetimeInput.style.display = 'none';
+            directInput.style.display = 'none';
+            
+            if (timestampType === 'datetime') {
+                datetimeInput.style.display = 'block';
+            } else if (timestampType === 'direct') {
+                directInput.style.display = 'block';
+            }
+        }
+
+        async function calculateSignature() {
+            // 隐藏之前的通知
+            hideNotification();
+            
+            const accessKey = document.getElementById('accessKey').value;
+            const secretKey = document.getElementById('secretKey').value;
+            const region = document.getElementById('region').value;
+            const service = document.getElementById('service').value;
+            const method = document.getElementById('method').value.toUpperCase();
+            const hostInput = document.getElementById('host').value;
+            const canonicalUri = document.getElementById('path').value || '/';
+            const requestBody = document.getElementById('requestBody').value || '';
+            
+            // 处理 Host 输入
+            const { processedHost: host, changes } = processHost(hostInput);
+            
+            // 如果有变更，显示通知
+            if (changes.length > 0) {
+                showNotification(`Host 已自动处理: ${changes.join(', ')} (原始: ${hostInput} → 处理后: ${host})`);
+            }
+            
+            // 处理时间戳输入
+            const timestampType = document.getElementById('timestampType').value;
+            let targetDate;
+            let amzDate;
+            
+            if (timestampType === 'direct') {
+                const directTimestamp = document.getElementById('directTimestamp').value;
+                if (directTimestamp && /^[0-9]{8}T[0-9]{6}Z$/.test(directTimestamp)) {
+                    amzDate = directTimestamp;
+                    // 从TOS格式转换为Date对象用于显示
+                    const year = directTimestamp.substring(0, 4);
+                    const month = directTimestamp.substring(4, 6);
+                    const day = directTimestamp.substring(6, 8);
+                    const hour = directTimestamp.substring(9, 11);
+                    const minute = directTimestamp.substring(11, 13);
+                    const second = directTimestamp.substring(13, 15);
+                    targetDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}Z`);
+                } else {
+                    alert('请输入正确的TOS时间戳格式，如: 20250812T142648Z');
+                    return;
+                }
+            } else if (timestampType === 'datetime') {
+                const customTimestamp = document.getElementById('customTimestamp').value;
+                if (customTimestamp) {
+                    targetDate = new Date(customTimestamp);
+                    amzDate = targetDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
+                } else {
+                    alert('请选择日期时间');
+                    return;
+                }
+            } else {
+                // 使用当前时间
+                targetDate = new Date();
+                amzDate = targetDate.toISOString().replace(/[:-]|\.\d{3}/g, "");
+            }
+
+            const dateStamp = amzDate.substr(0, 8);
+
+            const paramRows = document.querySelectorAll('.param-row');
+            const params = [];
+            paramRows.forEach(row => {
+                const keyInput = row.querySelector('.param-key');
+                const valueInput = row.querySelector('.param-value');
+                if (keyInput && valueInput) {
+                    const key = keyInput.value;
+                    const value = valueInput.value;
+                    if (key) {
+                        params.push({ key, value: value || '' });
+                    }
+                }
+            });
+
+            params.sort((a, b) => a.key.localeCompare(b.key));
+
+            const canonicalQueryString = params
+                .map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
+                .join('&');
+
+            // 收集自定义 headers
+            const headerRows = document.querySelectorAll('#customHeaders .param-row');
+            const customHeaders = [];
+            headerRows.forEach(row => {
+                const keyInput = row.querySelector('.header-key');
+                const valueInput = row.querySelector('.header-value');
+                if (keyInput && valueInput) {
+                    const key = keyInput.value;
+                    const value = valueInput.value;
+                    if (key && value) {
+                        customHeaders.push({ key: key.trim(), value: value.trim() });
+                    }
+                }
+            });
+
+            let payloadHash;
+            if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                payloadHash = CryptoJS.SHA256(requestBody).toString(CryptoJS.enc.Hex);
+            } else if (method === 'PUT' && !requestBody) {
+                payloadHash = 'UNSIGNED-PAYLOAD';
+            } else {
+                payloadHash = CryptoJS.SHA256("").toString(CryptoJS.enc.Hex);
+            }
+
+            // 构造所有需要签名的 headers
+            const allHeaders = [
+                { key: 'host', value: host },
+                { key: 'x-tos-date', value: amzDate },
+                { key: 'x-tos-content-sha256', value: payloadHash }
+            ];
+
+            // 添加自定义 headers（只包含符合 TOS 要求的 headers）
+            customHeaders.forEach(header => {
+                const name = header.key.toLowerCase();
+                // 包含 x-tos-meta-* headers 和其他需要签名的 headers
+                if (name.startsWith("x-tos-meta-") || 
+                    ["authorization", "content-type", "content-md5"].includes(name)) {
+                    allHeaders.push(header);
+                }
+            });
+
+            console.log("▶ Web版本 - All headers before sort:", allHeaders.map(h => `${h.key}: ${h.value}`));
+
+            // 按 header 名称排序
+            allHeaders.sort((a, b) => 
+                a.key.toLowerCase().localeCompare(b.key.toLowerCase())
+            );
+
+            console.log("▶ Web版本 - All headers after sort:", allHeaders.map(h => `${h.key}: ${h.value}`));
+
+            // 构造 canonical headers 字符串
+            const canonicalHeaders = allHeaders
+                .map(h => `${h.key.toLowerCase()}:${h.value.trim()}\n`)
+                .join("");
+
+            // 构造 signed headers 列表
+            const signedHeaders = allHeaders
+                .map(h => h.key.toLowerCase())
+                .join(";");
+
+            console.log("▶ Web版本 - canonicalHeaders:\\n", JSON.stringify(canonicalHeaders));
+            console.log("▶ Web版本 - signedHeaders:", signedHeaders);
+
+            const canonicalRequest = [
+                method,
+                canonicalUri,
+                canonicalQueryString,
+                canonicalHeaders,
+                signedHeaders,
+                payloadHash
+            ].join("\n");
+
+            console.log("▶ Web版本 - method:", method);
+            console.log("▶ Web版本 - canonicalUri:", canonicalUri);
+            console.log("▶ Web版本 - canonicalQueryString:", canonicalQueryString);
+            console.log("▶ Web版本 - payloadHash:", payloadHash);
+            console.log("▶ Web版本 - canonicalRequest:\\n", canonicalRequest);
+
+            const algorithm = "TOS4-HMAC-SHA256";
+            const credentialScope = `${dateStamp}/${region}/${service}/request`;
+            const hashCR = CryptoJS.SHA256(canonicalRequest).toString(CryptoJS.enc.Hex);
+            const stringToSign = [
+                algorithm,
+                amzDate,
+                credentialScope,
+                hashCR
+            ].join("\n");
+
+            console.log("▶ Web版本 - algorithm:", algorithm);
+            console.log("▶ Web版本 - credentialScope:", credentialScope);
+            console.log("▶ Web版本 - hashCR:", hashCR);
+            console.log("▶ Web版本 - stringToSign:\\n", stringToSign);
+
+            const kDate = CryptoJS.HmacSHA256(dateStamp, secretKey);
+            const kRegion = CryptoJS.HmacSHA256(region, kDate);
+            const kService = CryptoJS.HmacSHA256(service, kRegion);
+            const kSigning = CryptoJS.HmacSHA256("request", kService);
+
+            const signature = CryptoJS.HmacSHA256(stringToSign, kSigning).toString(CryptoJS.enc.Hex);
+
+            console.log("▶ Web版本 - kSigning (hex):", kSigning.toString(CryptoJS.enc.Hex));
+            console.log("▶ Web版本 - signature:", signature);
+
+            const authHeader = 
+                `${algorithm} ` +
+                `Credential=${accessKey}/${credentialScope}, ` +
+                `SignedHeaders=${signedHeaders}, ` +
+                `Signature=${signature}`;
+
+            console.log("▶ Web版本 - Authorization:", authHeader);
+
+            // 填充输出信息
+            document.getElementById('basicParamsOutput').textContent = 
+                `HTTP Method: ${method}\nHost: ${host}${hostInput !== host ? ` (原始: ${hostInput})` : ''}\nPath: ${canonicalUri}\nRegion: ${region}\nService: ${service}\nAccess Key: ${accessKey}`;
+                
+            document.getElementById('timestampOutput').textContent = 
+                `时间戳类型: ${timestampType === 'current' ? '当前时间' : timestampType === 'datetime' ? '选择时间' : 'TOS格式'}\n原始时间: ${targetDate.toISOString()}\nTOS时间戳: ${amzDate}\nDate Stamp: ${dateStamp}`;
+
+            document.getElementById('payloadHashOutput').textContent = 
+                `Request Body: ${requestBody ? `"${requestBody}"` : '(空)'}\nPayload Hash算法: SHA256\nPayload Hash: ${payloadHash}`;
+
+            document.getElementById('queryParamsOutput').textContent = 
+                `参数数量: ${params.length}\n参数详情: ${params.length > 0 ? params.map(p => `${p.key}=${p.value}`).join(', ') : '(无参数)'}\nCanonical Query String: "${canonicalQueryString}"`;
+                
+            document.getElementById('headersToSignOutput').textContent = 
+                `需签名Headers数量: ${allHeaders.length}\nHeaders列表:\n${allHeaders.map(h => `  ${h.key}: ${h.value}`).join('\n')}\n\nSigned Headers: ${signedHeaders}\n\nCanonical Headers:\n${canonicalHeaders}`;
+                
+            document.getElementById('canonicalRequestOutput').textContent = canonicalRequest;
+            
+            document.getElementById('stringToSignOutput').textContent = 
+                `算法: ${algorithm}\n时间戳: ${amzDate}\n凭证范围: ${credentialScope}\nCanonical Request Hash: ${hashCR}\n\nString To Sign:\n${stringToSign}`;
+
+            document.getElementById('keyDerivationOutput').textContent = 
+                `1. kDate = HMAC-SHA256("${dateStamp}", SecretKey)\n2. kRegion = HMAC-SHA256("${region}", kDate)\n3. kService = HMAC-SHA256("${service}", kRegion)\n4. kSigning = HMAC-SHA256("request", kService)\n\nkSigning (Hex): ${kSigning.toString(CryptoJS.enc.Hex)}`;
+
+            document.getElementById('signatureOutput').textContent = 
+                `签名算法: HMAC-SHA256\n签名输入: String To Sign\n签名密钥: kSigning\n\n最终签名: ${signature}`;
+
+            document.getElementById('authHeaderOutput').textContent = authHeader;
+
+            // 准备流程图数据
+            const flowchartData = {
+                accessKey,
+                secretKey,
+                method,
+                host,
+                path: canonicalUri,
+                region,
+                service,
+                timestampType: timestampType === 'current' ? '当前时间' : timestampType === 'datetime' ? '选择时间' : 'TOS格式',
+                originalTime: targetDate.toISOString(),
+                amzDate,
+                dateStamp,
+                requestBody: requestBody || '(空)',
+                payloadHash,
+                paramCount: params.length,
+                paramDetails: params.length > 0 ? params.map(p => `${p.key}=${p.value}`).join(', ') : '(无参数)',
+                canonicalQueryString,
+                headerCount: allHeaders.length,
+                signedHeaders,
+                canonicalHeaders,
+                canonicalRequest,
+                algorithm,
+                credentialScope,
+                hashCR,
+                stringToSign,
+                kSigning: kSigning.toString(CryptoJS.enc.Hex),
+                signature,
+                authHeader
+            };
+
+            // 渲染流程图
+            await renderFlowchart(flowchartData);
+
+            // 显示整个结果容器
+            document.getElementById('results-section').style.display = 'block';
+        }
+
+        document.getElementById('signatureForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await calculateSignature();
+        });
+    </script>
+</body>
+</html>

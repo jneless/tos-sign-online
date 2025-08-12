@@ -1,0 +1,12 @@
+{
+  "name": "tos-sign-online",
+  "version": "1.0.0",
+  "description": "TOS 签名计算器 - 在线计算 TOS API 签名",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "deploy": "vercel --prod"
+  },
+  "author": "",
+  "license": "MIT"
+}
