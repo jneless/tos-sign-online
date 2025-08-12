@@ -8,225 +8,334 @@
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         :root {
-            --titanium-light: #f5f5f7;
-            --titanium-medium: #e8e8ed;
-            --titanium-dark: #d2d2d7;
-            --titanium-darker: #aeaeb2;
-            --titanium-accent: #007aff;
-            --titanium-text: #1d1d1f;
-            --titanium-text-secondary: #86868b;
-            --titanium-background: #fbfbfd;
-            --titanium-card: #ffffff;
-            --titanium-border: #d2d2d7;
-            --titanium-shadow: rgba(0, 0, 0, 0.1);
-            --titanium-shadow-light: rgba(0, 0, 0, 0.04);
+            /* AWS控制台扁平化设计颜色系统 */
+            --aws-blue: #232f3e;
+            --aws-orange: #ff9900;
+            --aws-light-blue: #146eb4;
+            --aws-gray-50: #fafafa;
+            --aws-gray-100: #f2f3f3;
+            --aws-gray-200: #eaeded;
+            --aws-gray-300: #d5dbdb;
+            --aws-gray-400: #aab7b8;
+            --aws-gray-500: #85929e;
+            --aws-gray-600: #5d6d7e;
+            --aws-gray-700: #34495e;
+            --aws-gray-800: #2c3e50;
+            --aws-gray-900: #1b2631;
+            --aws-white: #ffffff;
+            --aws-red: #d13212;
+            --aws-green: #037f0c;
+            --aws-border: #d5dbdb;
+            --aws-focus: #0073bb;
+            --aws-hover: #f2f3f3;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            max-width: 1400px;
+            font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--aws-gray-50);
+            color: var(--aws-gray-800);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .main-container {
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
-            background: linear-gradient(135deg, var(--titanium-background) 0%, var(--titanium-light) 100%);
-            color: var(--titanium-text);
-            line-height: 1.47059;
-            font-weight: 400;
-            letter-spacing: -0.022em;
         }
 
-        .container {
-            background: var(--titanium-card);
-            padding: 40px;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px var(--titanium-shadow-light), 0 1px 6px var(--titanium-shadow);
-            backdrop-filter: saturate(180%) blur(20px);
-            border: 1px solid var(--titanium-border);
+        .page-header {
+            background: var(--aws-white);
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            color: var(--titanium-text);
+        .info-banner {
+            background: #e7f3ff;
+            border: 1px solid var(--aws-light-blue);
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--aws-gray-700);
             text-align: center;
-            margin-bottom: 40px;
-            font-size: 32px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-banner a {
+            color: var(--aws-light-blue);
+            text-decoration: none;
             font-weight: 600;
-            letter-spacing: -0.005em;
+        }
+
+        .info-banner a:hover {
+            text-decoration: underline;
+        }
+
+        .info-banner-close {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: var(--aws-gray-500);
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            border-radius: 2px;
+        }
+
+        .info-banner-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--aws-gray-700);
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--aws-gray-900);
+            line-height: 1.2;
+        }
+
+        .page-subtitle {
+            margin: 8px 0 0;
+            color: var(--aws-gray-600);
+            font-size: 14px;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 500px 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-panel {
+            background: var(--aws-white);
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .results-panel {
+            background: var(--aws-white);
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--aws-gray-900);
+            margin: 0 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--aws-gray-200);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .flowchart-section {
+            background: var(--aws-white);
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
-        label {
+        .form-label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: var(--titanium-text);
-            font-size: 15px;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--aws-gray-700);
+            font-size: 14px;
         }
 
-        input, select, textarea {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
             padding: 8px 12px;
-            border: 1px solid var(--titanium-border);
-            border-radius: 8px;
-            font-size: 15px;
-            box-sizing: border-box;
-            background-color: var(--titanium-card);
-            color: var(--titanium-text);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-appearance: none;
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--aws-white);
+            color: var(--aws-gray-800);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
 
-        input:focus, select:focus, textarea:focus {
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
-            border-color: var(--titanium-accent);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+            border-color: var(--aws-focus);
+            box-shadow: 0 0 0 2px rgba(0, 115, 187, 0.2);
         }
 
-        textarea {
+        .form-textarea {
             height: 80px;
             resize: vertical;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         }
 
-        .query-params {
-            border: 1px solid var(--titanium-border);
-            border-radius: 8px;
+        .form-help {
+            font-size: 12px;
+            color: var(--aws-gray-500);
+            margin-top: 4px;
+        }
+
+        .expandable-section {
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .expandable-header {
+            background-color: var(--aws-gray-100);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--aws-border);
+            font-weight: 600;
+            color: var(--aws-gray-700);
+        }
+
+        .expandable-content {
             padding: 16px;
-            background-color: var(--titanium-light);
+            background-color: var(--aws-white);
         }
 
         .param-row {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             margin-bottom: 8px;
             align-items: center;
         }
 
-        .param-row input {
+        .param-row .form-input {
             flex: 1;
             margin: 0;
         }
 
-        .remove-btn {
-            background: #ff3b30;
-            color: white;
+        .btn {
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-        }
-
-        .remove-btn:hover {
-            background: #d70015;
-            transform: scale(0.98);
-        }
-
-        .add-btn {
-            background: var(--titanium-accent);
-            color: white;
-            border: none;
+            border-radius: 4px;
             padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: 500;
             font-size: 14px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .add-btn:hover {
-            background: #0051d5;
-            transform: scale(0.98);
-        }
-
-        .calculate-btn {
-            background: linear-gradient(135deg, var(--titanium-accent) 0%, #5856d6 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
             font-weight: 600;
-            border-radius: 8px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 24px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
         }
 
-        .calculate-btn:hover {
-            transform: scale(0.98);
-            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
+        .btn-primary {
+            background-color: var(--aws-orange);
+            color: var(--aws-white);
+            border: 1px solid var(--aws-orange);
+        }
+
+        .btn-primary:hover {
+            background-color: #e88400;
+            border-color: #e88400;
+        }
+
+        .btn-secondary {
+            background-color: var(--aws-white);
+            color: var(--aws-gray-700);
+            border: 1px solid var(--aws-border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--aws-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--aws-red);
+            color: var(--aws-white);
+            border: 1px solid var(--aws-red);
+        }
+
+        .btn-danger:hover {
+            background-color: #b02a0c;
+            border-color: #b02a0c;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-full {
+            width: auto;
+            padding: 12px 32px;
+            font-size: 16px;
+            margin-top: 24px;
         }
 
         .results-container {
+            margin-top: 20px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 32px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .results-panel {
+            background: var(--aws-white);
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background-color: var(--aws-gray-100);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--aws-border);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--aws-gray-900);
+        }
+
+        .panel-content {
+            padding: 0;
         }
 
         .flowchart-container {
-            background: var(--titanium-card);
-            border-radius: 16px;
-            border: 1px solid var(--titanium-border);
-            overflow: hidden;
-            box-shadow: 0 4px 16px var(--titanium-shadow-light);
-            height: fit-content;
-        }
-
-        .flowchart-title {
-            background: linear-gradient(135deg, var(--titanium-light) 0%, var(--titanium-medium) 100%);
-            padding: 20px 24px;
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--titanium-text);
-            border-bottom: 1px solid var(--titanium-border);
-        }
-
-        .mermaid {
+            padding: 20px;
             text-align: center;
-            padding: 24px;
-            background: var(--titanium-background);
-        }
-
-        .node-details {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: 1px solid var(--titanium-accent);
-            border-radius: 12px;
-            padding: 16px;
-            margin: 16px 24px 24px 24px;
-            display: none;
-        }
-
-        .output {
-            background: var(--titanium-card);
-            border-radius: 16px;
-            border: 1px solid var(--titanium-border);
-            overflow: hidden;
-            box-shadow: 0 4px 16px var(--titanium-shadow-light);
-        }
-
-        .output h3 {
-            background: linear-gradient(135deg, var(--titanium-light) 0%, var(--titanium-medium) 100%);
-            margin: 0;
-            padding: 20px 24px;
-            color: var(--titanium-text);
-            font-size: 20px;
-            font-weight: 600;
-            border-bottom: 1px solid var(--titanium-border);
+            background-color: var(--aws-white);
         }
 
         .output-item {
-            margin: 0;
-            padding: 20px 24px;
-            background: var(--titanium-background);
-            border-bottom: 1px solid var(--titanium-border);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--aws-gray-200);
         }
 
         .output-item:last-child {
@@ -235,283 +344,306 @@
 
         .output-label {
             font-weight: 600;
-            color: var(--titanium-text);
-            margin-bottom: 12px;
-            font-size: 17px;
+            color: var(--aws-gray-700);
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
         .output-value {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            background: var(--titanium-card);
-            padding: 16px;
-            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: var(--aws-gray-50);
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--aws-border);
             white-space: pre-wrap;
             word-break: break-all;
-            font-size: 14px;
-            color: var(--titanium-text);
-            border: 1px solid var(--titanium-border);
-            line-height: 1.5;
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+            font-size: 12px;
+            color: var(--aws-gray-800);
+            line-height: 1.4;
         }
 
         .notification {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 1px solid #28a745;
-            color: #155724;
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            background-color: #d4efe7;
+            border: 1px solid var(--aws-green);
+            color: #0f5132;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
             display: none;
-            font-weight: 500;
+            font-size: 14px;
         }
 
-        .timestamp-group {
-            position: relative;
+        .node-details {
+            background-color: #e7f3ff;
+            border: 1px solid var(--aws-light-blue);
+            border-radius: 4px;
+            padding: 16px;
+            margin: 16px 20px 20px;
+            display: none;
         }
 
         .timestamp-info {
-            font-size: 15px;
-            color: var(--titanium-text-secondary);
-            margin-top: 8px;
-            font-weight: 400;
+            font-size: 12px;
+            color: var(--aws-gray-500);
+            margin-top: 4px;
         }
 
-        @media (max-width: 1024px) {
-            .results-container {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .two-column {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-
-            body {
-                padding: 16px;
-            }
-
-            .container {
-                padding: 24px;
-                border-radius: 16px;
-            }
-
-            h1 {
-                font-size: 28px;
-                margin-bottom: 32px;
-            }
-        }
-
-        /* 优化滚动条样式 */
+        /* 滚动条样式 */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--titanium-light);
-            border-radius: 4px;
+            background: var(--aws-gray-100);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--titanium-darker);
+            background: var(--aws-gray-400);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--titanium-text-secondary);
+            background: var(--aws-gray-500);
+        }
+
+        /* 表格样式优化 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--aws-border);
+        }
+
+        .data-table th {
+            background-color: var(--aws-gray-100);
+            font-weight: 600;
+            color: var(--aws-gray-700);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>TOS 签名计算器</h1>
+    <div class="main-container">
+        <div class="info-banner" id="info-banner">
+            <span>如有bug，欢迎前往 <a href="https://github.com/jneless/tos-sign-online" target="_blank">https://github.com/jneless/tos-sign-online</a> 提issue</span>
+            <button class="info-banner-close" onclick="closeInfoBanner()" title="关闭">×</button>
+        </div>
         
-        <form id="signatureForm">
-            <div id="notification" class="notification"></div>
-            
-            <div class="two-column">
-                <div>
-                    <div class="form-group">
-                        <label for="accessKey">Access Key:</label>
-                        <input type="text" id="accessKey" required>
-                    </div>
+        <div class="page-header">
+            <h1 class="page-title">TOS 签名计算器</h1>
+            <p class="page-subtitle">在线计算 TOS API 签名，单页应用，纯前端 javascript 运行</p>
+            <p class="page-subtitle">源码在Github可见，采用 Github + Vercel 自动化构建，源码可见，不会保存AK/SK</p>
+        </div>
+        
+        <div class="main-layout">
+            <!-- 左侧输入面板 -->
+            <div class="input-panel">
+                <div class="form-section">
+                    <div id="notification" class="notification"></div>
                     
-                    <div class="form-group">
-                        <label for="secretKey">Secret Key:</label>
-                        <input type="text" id="secretKey" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="region">Region:</label>
-                        <input type="text" id="region" value="cn-beijing" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="service">Service:</label>
-                        <input type="text" id="service" value="tos" required>
-                    </div>
-                    
-                    <div class="form-group timestamp-group">
-                        <label for="timestampType">时间戳输入方式:</label>
-                        <select id="timestampType" onchange="toggleTimestampInput()">
-                            <option value="current">使用当前时间</option>
-                            <option value="datetime">选择日期时间</option>
-                            <option value="direct">直接输入TOS格式</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group timestamp-group" id="datetimeInput" style="display: none;">
-                        <label for="customTimestamp">选择日期时间:</label>
-                        <input type="datetime-local" id="customTimestamp" 
-                               step="1"
-                               title="支持精确到秒">
-                    </div>
-                    
-                    <div class="form-group timestamp-group" id="directInput" style="display: none;">
-                        <label for="directTimestamp">TOS时间戳格式 (如: 20250812T142648Z):</label>
-                        <input type="text" id="directTimestamp" 
-                               placeholder="20250812T142648Z"
-                               pattern="[0-9]{8}T[0-9]{6}Z"
-                               title="格式: YYYYMMDDTHHMMSSZ">
-                        <div class="timestamp-info">格式: YYYYMMDDTHHMMSSZ</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="method">HTTP Method:</label>
-                        <select id="method" required>
-                            <option value="GET">GET</option>
-                            <option value="POST">POST</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
-                            <option value="HEAD">HEAD</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="form-group">
-                        <label for="host">Host:</label>
-                        <input type="text" id="host" placeholder="example.tos-cn-beijing.volces.com" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="path">Path:</label>
-                        <input type="text" id="path" value="/" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Query Parameters (可选):</label>
-                        <div class="query-params" id="queryParams">
-                            <div class="param-row">
-                                <input type="text" placeholder="Key (可选)" class="param-key">
-                                <input type="text" placeholder="Value (可选)" class="param-value">
-                                <button type="button" class="remove-btn" onclick="removeParam(this)">删除</button>
+                    <form id="signatureForm">
+                        <div class="section-title">基础配置</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="accessKey">Access Key</label>
+                                <input class="form-input" type="text" id="accessKey" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="secretKey">Secret Key</label>
+                                <input class="form-input" type="text" id="secretKey" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="region">Region</label>
+                                <input class="form-input" type="text" id="region" value="cn-beijing" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="service">Service</label>
+                                <input class="form-input" type="text" id="service" value="tos" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="host">Host</label>
+                                <input class="form-input" type="text" id="host" placeholder="example.tos-cn-beijing.volces.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="path">Path</label>
+                                <input class="form-input" type="text" id="path" value="/" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="method">HTTP Method</label>
+                                <select class="form-select" id="method" required>
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="DELETE">DELETE</option>
+                                    <option value="HEAD">HEAD</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="requestBody">Request Body</label>
+                                <textarea class="form-textarea" id="requestBody" placeholder="请求体内容（JSON等）"></textarea>
                             </div>
                         </div>
-                        <button type="button" class="add-btn" onclick="addParam()">添加参数</button>
-                        <div class="timestamp-info">默认为空，如不需要可以不填</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Custom Headers (可选):</label>
-                        <div class="query-params" id="customHeaders">
-                            <div class="param-row">
-                                <input type="text" placeholder="Header Name (如: x-tos-meta-example)" class="header-key">
-                                <input type="text" placeholder="Header Value" class="header-value">
-                                <button type="button" class="remove-btn" onclick="removeHeader(this)">删除</button>
+
+                        <div class="section-title">时间戳配置</div>
+                        <div class="form-group">
+                            <label class="form-label" for="timestampType">时间戳输入方式</label>
+                            <select class="form-select" id="timestampType" onchange="toggleTimestampInput()">
+                                <option value="current">使用当前时间</option>
+                                <option value="datetime">选择日期时间</option>
+                                <option value="direct">直接输入TOS格式</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="datetimeInput" style="display: none;">
+                            <label class="form-label" for="customTimestamp">选择日期时间</label>
+                            <input class="form-input" type="datetime-local" id="customTimestamp" 
+                                   step="1"
+                                   title="支持精确到秒">
+                        </div>
+                        
+                        <div class="form-group" id="directInput" style="display: none;">
+                            <label class="form-label" for="directTimestamp">TOS时间戳格式</label>
+                            <input class="form-input" type="text" id="directTimestamp" 
+                                   placeholder="20250812T142648Z"
+                                   pattern="[0-9]{8}T[0-9]{6}Z"
+                                   title="格式: YYYYMMDDTHHMMSSZ">
+                            <div class="form-help">格式: YYYYMMDDTHHMMSSZ</div>
+                        </div>
+
+                        <div class="section-title">Query Parameters (可选)</div>
+                        <div class="expandable-section">
+                            <div class="expandable-header">查询参数</div>
+                            <div class="expandable-content">
+                                <div id="queryParams">
+                                    <div class="param-row">
+                                        <input class="form-input param-key" type="text" placeholder="参数名">
+                                        <input class="form-input param-value" type="text" placeholder="参数值">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeParam(this)">删除</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="addParam()">添加参数</button>
+                                <div class="form-help">默认为空，如不需要可以不填</div>
                             </div>
                         </div>
-                        <button type="button" class="add-btn" onclick="addHeader()">添加Header</button>
-                        <div class="timestamp-info">自动包含必需的 headers: host, x-tos-date, x-tos-content-sha256</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="requestBody">Request Body:</label>
-                        <textarea id="requestBody" placeholder="请求体内容（JSON等）"></textarea>
-                    </div>
+
+                        <div class="section-title">Custom Headers (可选)</div>
+                        <div class="expandable-section">
+                            <div class="expandable-header">自定义Headers</div>
+                            <div class="expandable-content">
+                                <div id="customHeaders">
+                                    <div class="param-row">
+                                        <input class="form-input header-key" type="text" placeholder="Header Name (如: x-tos-meta-example)">
+                                        <input class="form-input header-value" type="text" placeholder="Header Value">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeHeader(this)">删除</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="addHeader()">添加Header</button>
+                                <div class="form-help">自动包含必需的 headers: host, x-tos-date, x-tos-content-sha256</div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-full">计算签名</button>
+                    </form>
                 </div>
             </div>
             
-            <button type="submit" class="calculate-btn">计算签名</button>
-        </form>
-        
-        <div class="results-container" id="results-section" style="display: none;">
-            <div id="flowchart-section" class="flowchart-container">
-                <h3 class="flowchart-title">TOS 签名计算流程图</h3>
-                <div class="mermaid" id="signature-flowchart">
-                    <!-- 流程图将在这里渲染 -->
-                </div>
-                <div id="node-details" class="node-details">
-                    <strong>节点详细信息</strong>
-                    <div id="node-content"></div>
+            <!-- 右侧结果面板 -->
+            <div class="results-panel" id="results-panel" style="display: none;">
+                <div class="panel-header">签名计算过程</div>
+                <div class="panel-content">
+                    <div class="output-item">
+                        <div class="output-label">1. 基础参数</div>
+                        <div class="output-value" id="basicParamsOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">2. 时间戳处理</div>
+                        <div class="output-value" id="timestampOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">3. Payload Hash 计算</div>
+                        <div class="output-value" id="payloadHashOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">4. Query Parameters 处理</div>
+                        <div class="output-value" id="queryParamsOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">5. Headers 处理</div>
+                        <div class="output-value" id="headersToSignOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">6. Canonical Request 构造</div>
+                        <div class="output-value" id="canonicalRequestOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">7. String To Sign 构造</div>
+                        <div class="output-value" id="stringToSignOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">8. 密钥派生过程</div>
+                        <div class="output-value" id="keyDerivationOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">9. 最终签名</div>
+                        <div class="output-value" id="signatureOutput"></div>
+                    </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">10. Authorization Header</div>
+                        <div class="output-value" id="authHeaderOutput"></div>
+                    </div>
                 </div>
             </div>
-            
-            <div id="output" class="output">
-                <h3>签名计算过程</h3>
-                
-                <div class="output-item">
-                    <div class="output-label">1. 基础参数</div>
-                    <div class="output-value" id="basicParamsOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">2. 时间戳处理</div>
-                    <div class="output-value" id="timestampOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">3. Payload Hash 计算</div>
-                    <div class="output-value" id="payloadHashOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">4. Query Parameters 处理</div>
-                    <div class="output-value" id="queryParamsOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">5. Headers 处理</div>
-                    <div class="output-value" id="headersToSignOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">6. Canonical Request 构造</div>
-                    <div class="output-value" id="canonicalRequestOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">7. String To Sign 构造</div>
-                    <div class="output-value" id="stringToSignOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">8. 密钥派生过程</div>
-                    <div class="output-value" id="keyDerivationOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">9. 最终签名</div>
-                    <div class="output-value" id="signatureOutput"></div>
-                </div>
-                
-                <div class="output-item">
-                    <div class="output-label">10. Authorization Header</div>
-                    <div class="output-value" id="authHeaderOutput"></div>
+        </div>
+        
+        <!-- 底部流程图区域 -->
+        <div class="flowchart-section" id="flowchart-section" style="display: none;">
+            <div class="panel-header">TOS 签名计算流程图</div>
+            <div class="panel-content">
+                <div class="flowchart-container">
+                    <div class="mermaid" id="signature-flowchart">
+                        <!-- 流程图将在这里渲染 -->
+                    </div>
+                    <div id="node-details" class="node-details">
+                        <strong>节点详细信息</strong>
+                        <div id="node-content"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // 关闭信息横幅
+        function closeInfoBanner() {
+            document.getElementById('info-banner').style.display = 'none';
+        }
+
         // 等待页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 确保 Mermaid 正确初始化
@@ -1468,7 +1600,8 @@ flowchart TD
             await renderFlowchart(flowchartData);
 
             // 显示整个结果容器
-            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-panel').style.display = 'block';
+            document.getElementById('flowchart-section').style.display = 'block';
         }
 
         document.getElementById('signatureForm').addEventListener('submit', async function(e) {
