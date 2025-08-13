@@ -380,6 +380,27 @@
             padding: 16px;
             margin: 16px 20px 20px;
             display: none;
+            text-align: left;
+        }
+
+        .node-details h4 {
+            margin: 0 0 12px 0;
+            color: var(--aws-gray-800);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .node-details pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            color: var(--aws-gray-700);
+            background: none;
+            border: none;
+            padding: 0;
         }
 
         .timestamp-info {
@@ -1105,22 +1126,60 @@ flowchart TD
             let targetNode = event.target;
             let nodeId = null;
             
-            // 获取目标节点及其最近父节点的文本内容
+            // 获取目标节点及其相关节点的文本内容，支持多层级查找
             let nodeText = targetNode.textContent || '';
             let parentText = '';
+            let grandparentText = '';
             
-            // 查找父节点文本（限制查找范围）
+            // 查找父节点和祖父节点文本（限制查找范围）
             let parent = targetNode.parentElement;
             if (parent && parent.tagName !== 'svg') {
                 parentText = parent.textContent || '';
+                
+                // 对于 polygon 等图形元素，需要查找更上层的文本
+                let grandparent = parent.parentElement;
+                if (grandparent && grandparent.tagName !== 'svg') {
+                    grandparentText = grandparent.textContent || '';
+                }
             }
             
-            // 使用较短的文本进行匹配，避免匹配到整个图表的文本
-            let textToMatch = nodeText.length <= parentText.length ? nodeText : parentText;
+            // 智能选择用于匹配的文本，优先选择最合适长度的文本
+            let textToMatch = '';
+            let candidateTexts = [nodeText, parentText, grandparentText].filter(text => text.length > 0);
             
-            // 如果文本太长（超过100个字符），可能是整个图表的文本，尝试使用更精确的文本
+            // 选择长度适中且包含有效信息的文本
+            for (let candidate of candidateTexts) {
+                if (candidate.length > 0 && candidate.length <= 200) {
+                    // 如果包含关键词，优先使用
+                    if (candidate.includes('生成时间戳') || candidate.includes('计算 SHA256') || 
+                        candidate.includes('规范化查询参数') || candidate.includes('收集 Headers') ||
+                        candidate.includes('构造') || candidate.includes('HMAC-SHA256') ||
+                        candidate.includes('Access Key') || candidate.includes('Secret Key') ||
+                        candidate.includes('Region') || candidate.includes('Service') ||
+                        candidate.includes('HTTP Method') || candidate.includes('Host') ||
+                        candidate.includes('Path') || candidate.includes('Request Body') ||
+                        candidate.includes('AMZ Date') || candidate.includes('Date Stamp') ||
+                        candidate.includes('Payload Hash') || candidate.includes('Canonical') ||
+                        candidate.includes('String To Sign') || candidate.includes('Authorization') ||
+                        candidate.includes('Final Signature') || candidate.includes('kDate') ||
+                        candidate.includes('kRegion') || candidate.includes('kService') ||
+                        candidate.includes('kSigning')) {
+                        textToMatch = candidate;
+                        break;
+                    }
+                }
+            }
+            
+            // 如果没有找到合适的文本，使用最短的非空文本
+            if (!textToMatch && candidateTexts.length > 0) {
+                textToMatch = candidateTexts.reduce((shortest, current) => 
+                    current.length < shortest.length ? current : shortest
+                );
+            }
+            
+            // 如果文本太长，截取前面部分
             if (textToMatch.length > 100) {
-                textToMatch = nodeText.length < 100 ? nodeText : textToMatch.substring(0, 100);
+                textToMatch = textToMatch.substring(0, 100);
             }
             
             console.log('用于匹配的文本内容:', textToMatch);
@@ -1253,11 +1312,20 @@ flowchart TD
                 console.log('未找到匹配的节点');
                 console.log('节点文本:', nodeText);
                 console.log('父节点文本:', parentText);
+                console.log('祖父节点文本:', grandparentText);
                 console.log('用于匹配的文本:', textToMatch);
                 
-                // 显示通用信息，帮助调试
+                // 显示用户友好的提示信息，不显示技术调试细节
                 document.getElementById('node-content').innerHTML = 
-                    `<h4>调试信息</h4><pre>点击的元素: ${targetNode.tagName}\n节点文本: ${nodeText}\n父节点文本: ${parentText.substring(0, 200)}${parentText.length > 200 ? '...' : ''}\n匹配文本: ${textToMatch}\n\n请点击流程图中的具体节点查看详细信息。</pre>`;
+                    `<h4>节点信息</h4><div style="padding: 10px; background: #f8f9fa; border-radius: 4px; color: #6c757d;">
+                        <p>👆 请点击流程图中的具体节点（矩形或菱形框）查看详细信息</p>
+                        <p>💡 提示：</p>
+                        <ul style="margin: 8px 0; padding-left: 20px;">
+                            <li>矩形框代表数据或结果</li>
+                            <li>菱形框代表处理过程</li>
+                            <li>点击不同的节点可以查看该步骤的详细说明</li>
+                        </ul>
+                    </div>`;
                 document.getElementById('node-details').style.display = 'block';
             }
             
