@@ -210,6 +210,62 @@
             margin-top: 4px;
         }
 
+        .method-warning {
+            font-size: 12px;
+            color: var(--aws-red);
+            background-color: #ffeaea;
+            border: 1px solid #ffcdd2;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .host-process-info {
+            font-size: 12px;
+            color: var(--aws-green);
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .host-process-info .original-url {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: rgba(76, 175, 80, 0.1);
+            padding: 4px 6px;
+            border-radius: 3px;
+            word-break: break-all;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .host-process-info .process-details {
+            font-weight: 600;
+        }
+
+        .host-process-close {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            color: var(--aws-green);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 2px;
+            line-height: 1;
+            font-weight: bold;
+        }
+
+        .host-process-close:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+        }
+
         .expandable-section {
             border: 1px solid var(--aws-border);
             border-radius: 4px;
@@ -493,11 +549,14 @@
                             <div class="form-group">
                                 <label class="form-label" for="service">Service</label>
                                 <input class="form-input" type="text" id="service" value="tos" required>
+                                <div class="form-help">默认为 tos</div>
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label" for="host">Host</label>
-                                <input class="form-input" type="text" id="host" placeholder="example.tos-cn-beijing.volces.com" required>
+                                <input class="form-input" type="text" id="host" placeholder="example.tos-cn-beijing.volces.com" required onblur="processHostInput()">
+                                <div class="form-help">通常是 tos-${region}.volces.com 或者是 ${bucketname}.tos-${region}.volces.com 的形式，忽略http或https的前缀，结尾不含/</div>
+                                <div id="hostProcessInfo" class="host-process-info" style="display: none;"></div>
                             </div>
                             
                             <div class="form-group">
@@ -507,7 +566,7 @@
                             
                             <div class="form-group">
                                 <label class="form-label" for="method">HTTP Method</label>
-                                <select class="form-select" id="method" required>
+                                <select class="form-select" id="method" required onchange="checkMethodBodyConflict()">
                                     <option value="GET">GET</option>
                                     <option value="POST">POST</option>
                                     <option value="PUT">PUT</option>
@@ -518,7 +577,10 @@
                             
                             <div class="form-group">
                                 <label class="form-label" for="requestBody">Request Body</label>
-                                <textarea class="form-textarea" id="requestBody" placeholder="请求体内容（JSON等）"></textarea>
+                                <textarea class="form-textarea" id="requestBody" placeholder="请求体内容（JSON等）" oninput="checkMethodBodyConflict()"></textarea>
+                                <div id="methodBodyWarning" class="method-warning" style="display: none;">
+                                    ⚠️ 当前Method为GET，请仔细检查
+                                </div>
                             </div>
                         </div>
 
@@ -1449,9 +1511,6 @@ flowchart TD
             
             // 调试信息：显示获取到的requestBody
             console.log('▶ 原始获取的requestBody:', requestBody);
-            console.log('▶ requestBody类型:', typeof requestBody);
-            console.log('▶ requestBody长度:', requestBody.length);
-            console.log('▶ requestBody是否为空:', !requestBody);
             console.log('▶ 当前method:', method);
             
             // 处理 Host 输入
@@ -1537,32 +1596,14 @@ flowchart TD
 
             let payloadHash;
             
-            // 调试条件判断
-            console.log('▶ 条件判断:');
-            console.log('  - requestBody存在:', !!requestBody);
-            console.log('  - method !== GET:', method !== 'GET');
-            console.log('  - method !== HEAD:', method !== 'HEAD');
-            console.log('  - 完整条件:', !!(requestBody && method !== 'GET' && method !== 'HEAD'));
-            
             if (requestBody && method !== 'GET' && method !== 'HEAD') {
-                console.log('▶ 进入有requestBody的分支');
                 // 直接使用原始的请求体内容计算hash，保持用户输入的格式
                 // 这样可以确保hash值与实际发送的数据一致
-                
-                // 调试信息：显示请求体的详细信息
-                console.log('▶ 请求体长度:', requestBody.length);
-                console.log('▶ 请求体内容:', JSON.stringify(requestBody));
-                console.log('▶ 请求体原始内容:', requestBody);
-                
                 payloadHash = CryptoJS.SHA256(requestBody).toString(CryptoJS.enc.Hex);
-                console.log('▶ 计算的PayloadHash:', payloadHash);
             } else if (method === 'PUT' && !requestBody) {
-                console.log('▶ 进入PUT但无requestBody的分支');
                 payloadHash = 'UNSIGNED-PAYLOAD';
             } else {
-                console.log('▶ 进入空字符串hash的分支');
                 payloadHash = CryptoJS.SHA256("").toString(CryptoJS.enc.Hex);
-                console.log('▶ 空字符串hash:', payloadHash);
             }
 
             // 构造所有需要签名的 headers
@@ -1660,7 +1701,7 @@ flowchart TD
                 `时间戳类型: ${timestampType === 'current' ? '当前时间' : timestampType === 'datetime' ? '选择时间' : 'TOS格式'}\n原始时间: ${targetDate.toISOString()}\nTOS时间戳: ${amzDate}\nDate Stamp: ${dateStamp}`;
 
             document.getElementById('payloadHashOutput').textContent = 
-                `Request Body: ${requestBody ? `"${requestBody}"` : '(空)'}\n长度: ${requestBody ? requestBody.length : 0} 字符\nPayload Hash算法: SHA256\nPayload Hash: ${payloadHash}\n\n注意: Hash计算使用原始输入格式，保持换行和空格\n调试: 请查看浏览器控制台获取详细信息`;
+                `Request Body: ${requestBody ? `"${requestBody}"` : '(空)'}\n长度: ${requestBody ? requestBody.length : 0} 字符\nPayload Hash算法: SHA256\nPayload Hash: ${payloadHash}\n\n注意: Hash计算使用原始输入格式，保持换行和空格`;
 
             document.getElementById('queryParamsOutput').textContent = 
                 `参数数量: ${params.length}\n参数详情: ${params.length > 0 ? params.map(p => `${p.key}=${p.value}`).join(', ') : '(无参数)'}\nCanonical Query String: "${canonicalQueryString}"`;
@@ -1827,6 +1868,180 @@ flowchart TD
                 btn.style.backgroundColor = '';
                 btn.style.color = '';
             }, 2000);
+        }
+
+        // 处理Host输入的自动解析功能
+        function processHostInput() {
+            const hostInput = document.getElementById('host');
+            const pathInput = document.getElementById('path');
+            const infoDiv = document.getElementById('hostProcessInfo');
+            
+            let originalValue = hostInput.value;
+            let processedValue = originalValue;
+            let messages = [];
+            
+            // 如果输入为空，隐藏提示信息
+            if (!originalValue.trim()) {
+                infoDiv.style.display = 'none';
+                return;
+            }
+            
+            // 1. 去除空格、tab、回车等无效字符
+            processedValue = processedValue.replace(/[\s\t\r\n]/g, '');
+            if (processedValue !== originalValue) {
+                messages.push('已清理无效空白字符');
+            }
+            
+            // 2. 去除http/https前缀
+            const httpRegex = /^https?:\/\//i;
+            if (httpRegex.test(processedValue)) {
+                processedValue = processedValue.replace(httpRegex, '');
+                messages.push('已移除HTTP/HTTPS前缀');
+            }
+            
+            // 3. 检查是否包含路径和查询参数
+            let hasPathOrQuery = false;
+            let queryStringFound = '';
+            
+            // 检查整个URL中是否包含查询参数
+            const questionMarkIndex = processedValue.indexOf('?');
+            if (questionMarkIndex !== -1) {
+                queryStringFound = processedValue.substring(questionMarkIndex + 1);
+                processedValue = processedValue.substring(0, questionMarkIndex);
+            }
+            
+            const urlParts = processedValue.split('/');
+            const hostPart = urlParts[0];
+            
+            if (urlParts.length > 1) {
+                // 提取路径部分
+                const pathPart = '/' + urlParts.slice(1).join('/');
+                
+                // 设置处理后的host
+                processedValue = hostPart;
+                hasPathOrQuery = true;
+                
+                // 自动填充路径
+                if (pathPart && pathPart !== '/') {
+                    pathInput.value = pathPart;
+                    messages.push(`已自动填充Path: ${pathPart}`);
+                } else {
+                    // 如果路径是根路径，确保Path字段为'/'
+                    pathInput.value = '/';
+                }
+            }
+            
+            // 处理查询参数 - 无论是否有路径，都要处理查询参数
+            if (questionMarkIndex !== -1 || hasPathOrQuery) {
+                if (queryStringFound) {
+                    parseAndFillQueryParams(queryStringFound);
+                    messages.push(`已自动填充Query参数: ${queryStringFound}`);
+                } else {
+                    // 如果检测到URL格式但没有query参数，清空现有参数
+                    clearQueryParams();
+                    messages.push('已清空Query参数');
+                }
+            }
+            
+            // 4. 去除尾部的斜杠（如果有）
+            if (processedValue.endsWith('/')) {
+                processedValue = processedValue.slice(0, -1);
+                messages.push('已移除尾部斜杠');
+            }
+            
+            // 更新Host输入框的值
+            if (processedValue !== originalValue) {
+                hostInput.value = processedValue;
+            }
+            
+            // 显示处理信息
+            if (messages.length > 0) {
+                infoDiv.innerHTML = `
+                    <button class="host-process-close" onclick="closeHostProcessInfo()" title="关闭">×</button>
+                    <div class="original-url">原始输入: ${originalValue}</div>
+                    <div class="process-details">✅ 已自动处理: ${messages.join(', ')}</div>
+                `;
+                infoDiv.style.display = 'block';
+                // 不再自动隐藏提示，保持显示状态
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
+        
+        // 解析并填充查询参数
+        function parseAndFillQueryParams(queryString) {
+            const container = document.getElementById('queryParams');
+            
+            // 清空现有的查询参数
+            container.innerHTML = '';
+            
+            // 解析查询字符串
+            const params = queryString.split('&');
+            
+            params.forEach(param => {
+                const [key, value = ''] = param.split('=');
+                if (key) {
+                    // 创建新的参数行
+                    const paramRow = document.createElement('div');
+                    paramRow.className = 'param-row';
+                    paramRow.innerHTML = `
+                        <input class="form-input param-key" type="text" placeholder="参数名" value="${decodeURIComponent(key)}">
+                        <input class="form-input param-value" type="text" placeholder="参数值" value="${decodeURIComponent(value)}">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeParam(this)">删除</button>
+                    `;
+                    container.appendChild(paramRow);
+                }
+            });
+            
+            // 如果没有参数或只有空参数，添加一个空行
+            if (container.children.length === 0) {
+                addEmptyParamRow();
+            }
+        }
+        
+        // 清空查询参数
+        function clearQueryParams() {
+            const container = document.getElementById('queryParams');
+            container.innerHTML = '';
+            addEmptyParamRow();
+        }
+        
+        // 添加空的参数行
+        function addEmptyParamRow() {
+            const container = document.getElementById('queryParams');
+            const paramRow = document.createElement('div');
+            paramRow.className = 'param-row';
+            paramRow.innerHTML = `
+                <input class="form-input param-key" type="text" placeholder="参数名">
+                <input class="form-input param-value" type="text" placeholder="参数值">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeParam(this)">删除</button>
+            `;
+            container.appendChild(paramRow);
+        }
+
+        // 关闭Host处理信息提示框
+        function closeHostProcessInfo() {
+            const infoDiv = document.getElementById('hostProcessInfo');
+            infoDiv.style.display = 'none';
+        }
+
+        // 检查HTTP Method和Request Body的冲突
+        function checkMethodBodyConflict() {
+            const method = document.getElementById('method').value;
+            const requestBody = document.getElementById('requestBody').value;
+            const warningDiv = document.getElementById('methodBodyWarning');
+            
+            // 如果是GET或HEAD方法，且有Request Body内容，显示警告
+            if ((method === 'GET' || method === 'HEAD') && requestBody.trim()) {
+                warningDiv.style.display = 'block';
+                if (method === 'HEAD') {
+                    warningDiv.textContent = '⚠️ 通常是 POST 或 PUT Method 使用 Body，当前Method为 HEAD ，请仔细确认';
+                } else {
+                    warningDiv.textContent = '⚠️ 通常是 POST 或 PUT Method 使用 Body，当前Method为 GET ，请仔细确认';
+                }
+            } else {
+                warningDiv.style.display = 'none';
+            }
         }
 
         document.getElementById('signatureForm').addEventListener('submit', async function(e) {
