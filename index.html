@@ -11,7 +11,7 @@
             /* AWS控制台扁平化设计颜色系统 */
             --aws-blue: #232f3e;
             --aws-orange: #ff9900;
-            --aws-light-blue: #146eb4;
+            --aws-light-blue: #418fca;
             --aws-gray-50: #fafafa;
             --aws-gray-100: #f2f3f3;
             --aws-gray-200: #eaeded;
@@ -312,9 +312,9 @@
         }
 
         .btn-primary {
-            background-color: var(--aws-orange);
+            background-color: var(--aws-light-blue);
             color: var(--aws-white);
-            border: 1px solid var(--aws-orange);
+            border: 1px solid var(--aws-light-blue);
         }
 
         .btn-primary:hover {
@@ -520,6 +520,9 @@
             <h1 class="page-title">TOS 签名计算器</h1>
             <p class="page-subtitle">在线计算 TOS API 签名，单页应用，纯前端 javascript 运行</p>
             <p class="page-subtitle">采用 Github + Vercel 自动化构建，源码在Github可见，不会保存AK/SK</p>
+            <div style="margin-top: 16px;">
+                <button type="button" class="btn btn-sm" onclick="fillGetObjectDemo()" style="background-color: var(--aws-light-blue); color: var(--aws-white); border: 1px solid var(--aws-light-blue);">🚀 帮我构造一个 GetObject 请求</button>
+            </div>
         </div>
         
         <div class="main-layout">
@@ -745,6 +748,47 @@
         // 关闭信息横幅
         function closeInfoBanner() {
             document.getElementById('info-banner').style.display = 'none';
+        }
+
+        // 填充 GetObject 演示数据
+        function fillGetObjectDemo() {
+            // 填充基础配置
+            document.getElementById('accessKey').value = 'your-access-key-here';
+            document.getElementById('secretKey').value = 'your-secret-key-here';
+            document.getElementById('region').value = 'cn-beijing';
+            document.getElementById('service').value = 'tos';
+            document.getElementById('host').value = 'your-bucket-name.tos-cn-beijing.volces.com';
+            document.getElementById('path').value = '/myfiles/1.jpg';
+            document.getElementById('method').value = 'GET';
+            document.getElementById('requestBody').value = '';
+            
+            // 清空查询参数
+            const container = document.getElementById('queryParams');
+            container.innerHTML = '';
+            addEmptyParamRow();
+            
+            // 清空自定义Headers
+            const headersContainer = document.getElementById('customHeaders');
+            headersContainer.innerHTML = '';
+            const headerRow = document.createElement('div');
+            headerRow.className = 'param-row';
+            headerRow.innerHTML = `
+                <input class="form-input header-key" type="text" placeholder="Header Name (如: x-tos-meta-example)">
+                <input class="form-input header-value" type="text" placeholder="Header Value">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeHeader(this)">删除</button>
+            `;
+            headersContainer.appendChild(headerRow);
+            
+            // 时间戳使用当前时间
+            document.getElementById('timestampType').value = 'current';
+            toggleTimestampInput();
+            
+            // 隐藏之前的结果
+            document.getElementById('results-panel').style.display = 'none';
+            document.getElementById('flowchart-section').style.display = 'none';
+            
+            // 显示友好提示
+            showNotification('已自动填充 GetObject 演示数据，可以基于该模拟密钥，点击最下方 [计算签名]，查看签名过程');
         }
 
         // 等待页面加载完成后初始化
@@ -1432,9 +1476,9 @@ flowchart TD
             const paramRow = document.createElement('div');
             paramRow.className = 'param-row';
             paramRow.innerHTML = `
-                <input type="text" placeholder="Key (可选)" class="param-key">
-                <input type="text" placeholder="Value (可选)" class="param-value">
-                <button type="button" class="remove-btn" onclick="removeParam(this)">删除</button>
+                <input class="form-input param-key" type="text" placeholder="参数名">
+                <input class="form-input param-value" type="text" placeholder="参数值">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeParam(this)">删除</button>
             `;
             container.appendChild(paramRow);
         }
@@ -1448,9 +1492,9 @@ flowchart TD
             const headerRow = document.createElement('div');
             headerRow.className = 'param-row';
             headerRow.innerHTML = `
-                <input type="text" placeholder="Header Name (如: x-tos-meta-example)" class="header-key">
-                <input type="text" placeholder="Header Value" class="header-value">
-                <button type="button" class="remove-btn" onclick="removeHeader(this)">删除</button>
+                <input class="form-input header-key" type="text" placeholder="Header Name (如: x-tos-meta-example)">
+                <input class="form-input header-value" type="text" placeholder="Header Value">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeHeader(this)">删除</button>
             `;
             container.appendChild(headerRow);
         }
