@@ -704,6 +704,9 @@
                     <div class="output-item">
                         <div class="output-label">11. 完整的 cURL 请求</div>
                         <div class="output-value" id="curlRequestOutput"></div>
+                        <div class="form-help">
+                            【重要】当执行 curl 命令时，如果出现 "Warning: Binary output can mess up your terminal." 警告，这表明 <strong>签名已经通过验证成功</strong>！如果希望下载文件进行校验，请手动在curl命令末尾添加 <strong>--output filename</strong> 参数来保存文件，或添加 <strong>--output -</strong> 强制输出二进制到终端
+                        </div>
                         <div style="margin-top: 8px;">
                             <button type="button" class="btn btn-secondary btn-sm" onclick="copyCurl()" id="copyCurlBtn">复制 cURL 命令</button>
                         </div>
