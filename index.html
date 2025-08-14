@@ -638,6 +638,14 @@
                         <div class="output-label">10. Authorization Header</div>
                         <div class="output-value" id="authHeaderOutput"></div>
                     </div>
+                    
+                    <div class="output-item">
+                        <div class="output-label">11. 完整的 cURL 请求</div>
+                        <div class="output-value" id="curlRequestOutput"></div>
+                        <div style="margin-top: 8px;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="copyCurl()" id="copyCurlBtn">复制 cURL 命令</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -687,64 +695,76 @@
 
         // 生成流程图
         function generateFlowchart(data) {
+            // 安全地转义Mermaid字符串，避免语法错误
+            function safeMermaidText(text) {
+                if (!text) return '';
+                return text.toString()
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;')
+                    .replace(/\\/g, '\\\\')
+                    .replace(/\n/g, ' ')
+                    .replace(/\r/g, ' ')
+                    .substring(0, 50); // 限制长度
+            }
+            
             const flowchartDefinition = `
 flowchart TD
     %% 输入参数
-    A1["Access Key<br/>${data.accessKey ? data.accessKey.substring(0, 8) + '...' : ''}"]
+    A1["Access Key<br/>${data.accessKey ? safeMermaidText(data.accessKey.substring(0, 8)) + '...' : 'N/A'}"]
     A2["Secret Key<br/>[已提供]"]
-    A3["Region<br/>${data.region}"]
-    A4["Service<br/>${data.service}"]
-    A5["HTTP Method<br/>${data.method}"]
-    A6["Host<br/>${data.host}"]
-    A7["Path<br/>${data.path}"]
-    A8["Request Body<br/>${data.requestBody ? (data.requestBody.length > 20 ? data.requestBody.substring(0, 20) + '...' : data.requestBody) : '(空)'}"]
+    A3["Region<br/>${safeMermaidText(data.region)}"]
+    A4["Service<br/>${safeMermaidText(data.service)}"]
+    A5["HTTP Method<br/>${safeMermaidText(data.method)}"]
+    A6["Host<br/>${safeMermaidText(data.host)}"]
+    A7["Path<br/>${safeMermaidText(data.path)}"]
+    A8["Request Body<br/>${data.requestBody ? (data.requestBody.length > 15 ? safeMermaidText(data.requestBody.substring(0, 15)) + '...' : safeMermaidText(data.requestBody)) : '空'}"]
     
     %% 时间戳处理
     B1{"生成时间戳"}
-    B2["AMZ Date<br/>${data.amzDate}"]
-    B3["Date Stamp<br/>${data.dateStamp}"]
+    B2["AMZ Date<br/>${safeMermaidText(data.amzDate)}"]
+    B3["Date Stamp<br/>${safeMermaidText(data.dateStamp)}"]
     
     %% Payload Hash 计算
     C1{"计算 SHA256"}
-    C2["Payload Hash<br/>${data.payloadHash.substring(0, 16)}..."]
+    C2["Payload Hash<br/>${data.payloadHash ? safeMermaidText(data.payloadHash.substring(0, 16)) + '...' : 'N/A'}"]
     
     %% Query String 处理
     D1{"规范化查询参数"}
-    D2["Canonical Query<br/>${data.canonicalQueryString || '(空)'}"]
+    D2["Canonical Query<br/>${safeMermaidText(data.canonicalQueryString || '空')}"]
     
     %% Headers 处理
     E1{"收集 Headers"}
-    E2["Host Header<br/>host:${data.host}"]
-    E3["Date Header<br/>x-tos-date:${data.amzDate}"]
-    E4["Content Header<br/>x-tos-content-sha256:${data.payloadHash.substring(0, 12)}..."]
+    E2["Host Header<br/>host:${safeMermaidText(data.host)}"]
+    E3["Date Header<br/>x-tos-date:${safeMermaidText(data.amzDate)}"]
+    E4["Content Header<br/>x-tos-content-sha256:${data.payloadHash ? safeMermaidText(data.payloadHash.substring(0, 12)) + '...' : 'N/A'}"]
     E5{"排序 Headers"}
-    E6["Signed Headers<br/>${data.signedHeaders}"]
-    E7["Canonical Headers<br/>${data.canonicalHeaders.split('\\n').length - 1} headers"]
+    E6["Signed Headers<br/>${safeMermaidText(data.signedHeaders)}"]
+    E7["Canonical Headers<br/>${data.canonicalHeaders ? (data.canonicalHeaders.split('\n').length - 1) + ' headers' : '0 headers'}"]
     
     %% Canonical Request 构造
     F1{"构造 Canonical Request"}
     F2["Canonical Request<br/>[Method + URI + Query + Headers + Hash]"]
     F3{"SHA256 Hash"}
-    F4["Request Hash<br/>${data.hashCR.substring(0, 16)}..."]
+    F4["Request Hash<br/>${data.hashCR ? safeMermaidText(data.hashCR.substring(0, 16)) + '...' : 'N/A'}"]
     
     %% String To Sign 构造
     G1{"构造 String To Sign"}
-    G2["Credential Scope<br/>${data.credentialScope}"]
+    G2["Credential Scope<br/>${safeMermaidText(data.credentialScope)}"]
     G3["String To Sign<br/>[Algorithm + Date + Scope + Hash]"]
     
     %% 密钥派生
-    H1{"HMAC-SHA256<br/>(DateStamp, SecretKey)"}
+    H1{"HMAC-SHA256<br/>DateStamp, SecretKey"}
     H2["kDate<br/>[中间密钥1]"]
-    H3{"HMAC-SHA256<br/>(Region, kDate)"}
+    H3{"HMAC-SHA256<br/>Region, kDate"}
     H4["kRegion<br/>[中间密钥2]"]
-    H5{"HMAC-SHA256<br/>(Service, kRegion)"}
+    H5{"HMAC-SHA256<br/>Service, kRegion"}
     H6["kService<br/>[中间密钥3]"]
-    H7{"HMAC-SHA256<br/>('request', kService)"}
-    H8["kSigning<br/>${data.kSigning.substring(0, 16)}..."]
+    H7{"HMAC-SHA256<br/>request, kService"}
+    H8["kSigning<br/>${data.kSigning ? safeMermaidText(data.kSigning.substring(0, 16)) + '...' : 'N/A'}"]
     
     %% 最终签名
-    I1{"HMAC-SHA256<br/>(StringToSign, kSigning)"}
-    I2["Final Signature<br/>${data.signature.substring(0, 16)}..."]
+    I1{"HMAC-SHA256<br/>StringToSign, kSigning"}
+    I2["Final Signature<br/>${data.signature ? safeMermaidText(data.signature.substring(0, 16)) + '...' : 'N/A'}"]
     
     %% Authorization Header
     J1{"构造 Authorization"}
@@ -1427,6 +1447,13 @@ flowchart TD
             const canonicalUri = document.getElementById('path').value || '/';
             const requestBody = document.getElementById('requestBody').value || '';
             
+            // 调试信息：显示获取到的requestBody
+            console.log('▶ 原始获取的requestBody:', requestBody);
+            console.log('▶ requestBody类型:', typeof requestBody);
+            console.log('▶ requestBody长度:', requestBody.length);
+            console.log('▶ requestBody是否为空:', !requestBody);
+            console.log('▶ 当前method:', method);
+            
             // 处理 Host 输入
             const { processedHost: host, changes } = processHost(hostInput);
             
@@ -1509,12 +1536,33 @@ flowchart TD
             });
 
             let payloadHash;
+            
+            // 调试条件判断
+            console.log('▶ 条件判断:');
+            console.log('  - requestBody存在:', !!requestBody);
+            console.log('  - method !== GET:', method !== 'GET');
+            console.log('  - method !== HEAD:', method !== 'HEAD');
+            console.log('  - 完整条件:', !!(requestBody && method !== 'GET' && method !== 'HEAD'));
+            
             if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                console.log('▶ 进入有requestBody的分支');
+                // 直接使用原始的请求体内容计算hash，保持用户输入的格式
+                // 这样可以确保hash值与实际发送的数据一致
+                
+                // 调试信息：显示请求体的详细信息
+                console.log('▶ 请求体长度:', requestBody.length);
+                console.log('▶ 请求体内容:', JSON.stringify(requestBody));
+                console.log('▶ 请求体原始内容:', requestBody);
+                
                 payloadHash = CryptoJS.SHA256(requestBody).toString(CryptoJS.enc.Hex);
+                console.log('▶ 计算的PayloadHash:', payloadHash);
             } else if (method === 'PUT' && !requestBody) {
+                console.log('▶ 进入PUT但无requestBody的分支');
                 payloadHash = 'UNSIGNED-PAYLOAD';
             } else {
+                console.log('▶ 进入空字符串hash的分支');
                 payloadHash = CryptoJS.SHA256("").toString(CryptoJS.enc.Hex);
+                console.log('▶ 空字符串hash:', payloadHash);
             }
 
             // 构造所有需要签名的 headers
@@ -1612,7 +1660,7 @@ flowchart TD
                 `时间戳类型: ${timestampType === 'current' ? '当前时间' : timestampType === 'datetime' ? '选择时间' : 'TOS格式'}\n原始时间: ${targetDate.toISOString()}\nTOS时间戳: ${amzDate}\nDate Stamp: ${dateStamp}`;
 
             document.getElementById('payloadHashOutput').textContent = 
-                `Request Body: ${requestBody ? `"${requestBody}"` : '(空)'}\nPayload Hash算法: SHA256\nPayload Hash: ${payloadHash}`;
+                `Request Body: ${requestBody ? `"${requestBody}"` : '(空)'}\n长度: ${requestBody ? requestBody.length : 0} 字符\nPayload Hash算法: SHA256\nPayload Hash: ${payloadHash}\n\n注意: Hash计算使用原始输入格式，保持换行和空格\n调试: 请查看浏览器控制台获取详细信息`;
 
             document.getElementById('queryParamsOutput').textContent = 
                 `参数数量: ${params.length}\n参数详情: ${params.length > 0 ? params.map(p => `${p.key}=${p.value}`).join(', ') : '(无参数)'}\nCanonical Query String: "${canonicalQueryString}"`;
@@ -1632,6 +1680,21 @@ flowchart TD
                 `签名算法: HMAC-SHA256\n签名输入: String To Sign\n签名密钥: kSigning\n\n最终签名: ${signature}`;
 
             document.getElementById('authHeaderOutput').textContent = authHeader;
+
+            // 生成 cURL 请求
+            const curlRequest = generateCurlRequest({
+                method,
+                host,
+                path: canonicalUri,
+                requestBody,
+                authHeader,
+                amzDate,
+                payloadHash,
+                customHeaders,
+                canonicalQueryString
+            });
+            
+            document.getElementById('curlRequestOutput').textContent = curlRequest;
 
             // 准备流程图数据
             const flowchartData = {
@@ -1670,6 +1733,100 @@ flowchart TD
             // 显示整个结果容器
             document.getElementById('results-panel').style.display = 'block';
             document.getElementById('flowchart-section').style.display = 'block';
+        }
+
+        // 生成 cURL 请求
+        function generateCurlRequest(options) {
+            const { method, host, path, requestBody, authHeader, amzDate, payloadHash, customHeaders, canonicalQueryString } = options;
+            
+            // 构建完整URL
+            const protocol = 'https://';
+            const fullUrl = protocol + host + path + (canonicalQueryString ? '?' + canonicalQueryString : '');
+            
+            // 构建cURL命令
+            let curlCommand = `curl -X ${method} \\\n  "${fullUrl}"`;
+            
+            // 添加必需的headers
+            curlCommand += ` \\\n  -H "Host: ${host}"`;
+            curlCommand += ` \\\n  -H "Authorization: ${authHeader}"`;
+            curlCommand += ` \\\n  -H "x-tos-date: ${amzDate}"`;
+            curlCommand += ` \\\n  -H "x-tos-content-sha256: ${payloadHash}"`;
+            
+            // 添加自定义headers
+            if (customHeaders && customHeaders.length > 0) {
+                customHeaders.forEach(header => {
+                    curlCommand += ` \\\n  -H "${header.key}: ${header.value}"`;
+                });
+            }
+            
+            // 添加Content-Type（如果有请求体）
+            if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                // 检查是否已经有Content-Type header
+                const hasContentType = customHeaders && customHeaders.some(h => 
+                    h.key.toLowerCase() === 'content-type'
+                );
+                if (!hasContentType) {
+                    curlCommand += ` \\\n  -H "Content-Type: application/json"`;
+                }
+                curlCommand += ` \\\n  -d '${requestBody}'`;
+            }
+            
+            return curlCommand;
+        }
+        
+        // 复制 cURL 命令到剪贴板
+        function copyCurl() {
+            const curlText = document.getElementById('curlRequestOutput').textContent;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                // 使用现代剪贴板 API
+                navigator.clipboard.writeText(curlText).then(() => {
+                    showCopySuccess();
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    fallbackCopy(curlText);
+                });
+            } else {
+                // 降级到传统方法
+                fallbackCopy(curlText);
+            }
+        }
+        
+        // 降级复制方法
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动选择并复制文本');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+        
+        // 显示复制成功反馈
+        function showCopySuccess() {
+            const btn = document.getElementById('copyCurlBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '已复制!';
+            btn.style.backgroundColor = 'var(--aws-green)';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+            }, 2000);
         }
 
         document.getElementById('signatureForm').addEventListener('submit', async function(e) {
