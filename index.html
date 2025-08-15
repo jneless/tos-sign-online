@@ -507,6 +507,147 @@
             font-weight: 600;
             color: var(--aws-gray-700);
         }
+
+        /* Tab 标签页样式 */
+        .tab-container {
+            background: var(--aws-white);
+            border: 1px solid var(--aws-border);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab-header {
+            background-color: var(--aws-gray-100);
+            border-bottom: 1px solid var(--aws-border);
+            display: flex;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tab-header-title {
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--aws-gray-900);
+            border-right: 1px solid var(--aws-border);
+            background-color: var(--aws-gray-100);
+            flex-shrink: 0;
+        }
+
+        .tab-nav {
+            display: flex;
+            flex: 1;
+            background-color: var(--aws-white);
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--aws-gray-600);
+            border-right: 1px solid var(--aws-border);
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            background-color: var(--aws-hover);
+            color: var(--aws-gray-800);
+        }
+
+        .tab-button.active {
+            background-color: var(--aws-white);
+            color: var(--aws-light-blue);
+            font-weight: 600;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--aws-light-blue);
+        }
+
+        .tab-button:last-child {
+            border-right: none;
+        }
+
+        .tab-lang-icon {
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            color: white;
+        }
+
+        .tab-lang-icon.python {
+            background-color: #3776ab;
+        }
+
+        .tab-lang-icon.golang {
+            background-color: #00add8;
+        }
+
+        .tab-lang-icon.java {
+            background-color: #ed8b00;
+        }
+
+        .tab-lang-icon.nodejs {
+            background-color: #339933;
+        }
+
+        .tab-content {
+            background-color: var(--aws-white);
+        }
+
+        .tab-pane {
+            display: none;
+            padding: 0;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .code-content {
+            padding: 20px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--aws-gray-200);
+        }
+
+        .code-title {
+            font-weight: 600;
+            color: var(--aws-gray-700);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -742,12 +883,118 @@
                 </div>
             </div>
         </div>
+        
+        <!-- 代码示例区域 -->
+        <div class="tab-container" id="code-examples-section" style="display: none;">
+            <div class="tab-header">
+                <div class="tab-header-title">完整代码实现示例</div>
+                <div class="tab-nav">
+                    <button class="tab-button active" data-tab="python" onclick="switchTab('python')">
+                        <span class="tab-lang-icon python">Py</span>
+                        Python3
+                    </button>
+                    <button class="tab-button" data-tab="golang" onclick="switchTab('golang')">
+                        <span class="tab-lang-icon golang">Go</span>
+                        Golang
+                    </button>
+                    <button class="tab-button" data-tab="java" onclick="switchTab('java')">
+                        <span class="tab-lang-icon java">Ja</span>
+                        Java
+                    </button>
+                    <button class="tab-button" data-tab="nodejs" onclick="switchTab('nodejs')">
+                        <span class="tab-lang-icon nodejs">Js</span>
+                        Node.js
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Python 代码示例 -->
+                <div class="tab-pane active" id="python-tab">
+                    <div class="code-content">
+                        <div class="code-header">
+                            <h4 class="code-title">Python3 完整实现 - 使用 requests 库</h4>
+                            <div class="code-actions">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="copyCode('python')" id="copyPythonBtn">复制代码</button>
+                            </div>
+                        </div>
+                        <div class="output-value" id="pythonCodeOutput"></div>
+                    </div>
+                </div>
+                
+                <!-- Golang 代码示例 -->
+                <div class="tab-pane" id="golang-tab">
+                    <div class="code-content">
+                        <div class="code-header">
+                            <h4 class="code-title">Golang 完整实现 - 使用标准库</h4>
+                            <div class="code-actions">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="copyCode('golang')" id="copyGolangBtn">复制代码</button>
+                            </div>
+                        </div>
+                        <div class="output-value" id="golangCodeOutput"></div>
+                    </div>
+                </div>
+                
+                <!-- Java 代码示例 -->
+                <div class="tab-pane" id="java-tab">
+                    <div class="code-content">
+                        <div class="code-header">
+                            <h4 class="code-title">Java 完整实现 - 使用 HttpClient (Java 11+)</h4>
+                            <div class="code-actions">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="copyCode('java')" id="copyJavaBtn">复制代码</button>
+                            </div>
+                        </div>
+                        <div class="output-value" id="javaCodeOutput"></div>
+                    </div>
+                </div>
+                
+                <!-- Node.js 代码示例 -->
+                <div class="tab-pane" id="nodejs-tab">
+                    <div class="code-content">
+                        <div class="code-header">
+                            <h4 class="code-title">Node.js 完整实现 - 使用内置模块</h4>
+                            <div class="code-actions">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="copyCode('nodejs')" id="copyNodejsBtn">复制代码</button>
+                            </div>
+                        </div>
+                        <div class="output-value" id="nodejsCodeOutput"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // 关闭信息横幅
         function closeInfoBanner() {
             document.getElementById('info-banner').style.display = 'none';
+        }
+
+        // Tab 切换功能
+        function switchTab(tabName) {
+            // 移除所有tab按钮的active类
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // 隐藏所有tab内容
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            // 激活当前选中的tab按钮
+            const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            
+            // 显示当前选中的tab内容
+            const activePane = document.getElementById(`${tabName}-tab`);
+            if (activePane) {
+                activePane.classList.add('active');
+            }
         }
 
         // 填充 GetObject 演示数据
@@ -786,6 +1033,7 @@
             // 隐藏之前的结果
             document.getElementById('results-panel').style.display = 'none';
             document.getElementById('flowchart-section').style.display = 'none';
+            document.getElementById('code-examples-section').style.display = 'none';
             
             // 显示友好提示
             showNotification('已自动填充 GetObject 演示数据，可以基于该模拟密钥，点击最下方 [计算签名]，查看签名过程');
@@ -805,7 +1053,37 @@
                     }
                 });
             }
+            
+            // 初始化tab功能
+            initializeTabs();
         });
+
+        // 初始化tab功能
+        function initializeTabs() {
+            // 确保默认选中Python tab
+            switchTab('python');
+            
+            // 为所有tab按钮添加键盘支持
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach((button, index) => {
+                button.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const tabName = button.getAttribute('data-tab');
+                        switchTab(tabName);
+                    }
+                    // 支持箭头键导航
+                    else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        const direction = e.key === 'ArrowLeft' ? -1 : 1;
+                        const nextIndex = (index + direction + tabButtons.length) % tabButtons.length;
+                        tabButtons[nextIndex].focus();
+                        const nextTabName = tabButtons[nextIndex].getAttribute('data-tab');
+                        switchTab(nextTabName);
+                    }
+                });
+            });
+        }
 
         // 存储节点详细信息
         let nodeDetails = {};
@@ -1793,6 +2071,70 @@ flowchart TD
             
             document.getElementById('curlRequestOutput').textContent = curlRequest;
 
+            // 生成 Python3 代码
+            const pythonCode = generatePythonCode({
+                method,
+                host,
+                path: canonicalUri,
+                requestBody,
+                customHeaders,
+                canonicalQueryString,
+                accessKey,
+                secretKey,
+                region,
+                service
+            });
+            
+            document.getElementById('pythonCodeOutput').textContent = pythonCode;
+
+            // 生成 Golang 代码
+            const golangCode = generateGolangCode({
+                method,
+                host,
+                path: canonicalUri,
+                requestBody,
+                customHeaders,
+                canonicalQueryString,
+                accessKey,
+                secretKey,
+                region,
+                service
+            });
+            
+            document.getElementById('golangCodeOutput').textContent = golangCode;
+
+            // 生成 Java 代码
+            const javaCode = generateJavaCode({
+                method,
+                host,
+                path: canonicalUri,
+                requestBody,
+                customHeaders,
+                canonicalQueryString,
+                accessKey,
+                secretKey,
+                region,
+                service
+            });
+            
+            document.getElementById('javaCodeOutput').textContent = javaCode;
+
+            // 生成 Node.js 代码
+            const nodejsCode = generateNodejsCode({
+                method,
+                host,
+                path: canonicalUri,
+                requestBody,
+                customHeaders,
+                canonicalQueryString,
+                accessKey,
+                secretKey,
+                region,
+                service
+            });
+            
+            document.getElementById('nodejsCodeOutput').textContent = nodejsCode;
+
             // 准备流程图数据
             const flowchartData = {
                 accessKey,
@@ -1830,6 +2172,1072 @@ flowchart TD
             // 显示整个结果容器
             document.getElementById('results-panel').style.display = 'block';
             document.getElementById('flowchart-section').style.display = 'block';
+            document.getElementById('code-examples-section').style.display = 'block';
+        }
+
+        // 生成 Python3 代码
+        function generatePythonCode(options) {
+            const { method, host, path, requestBody, customHeaders, canonicalQueryString, accessKey, secretKey, region, service } = options;
+            
+            // 构建查询参数代码
+            let queryParamsCode = '';
+            if (canonicalQueryString) {
+                const params = canonicalQueryString.split('&').map(param => {
+                    const [key, value = ''] = param.split('=');
+                    return `    '${decodeURIComponent(key)}': '${decodeURIComponent(value)}',`;
+                }).join('\n');
+                queryParamsCode = `query_params = {\n${params}\n}`;
+            } else {
+                queryParamsCode = `query_params = {}`;
+            }
+            
+            // 处理自定义headers
+            let customHeadersCode = '';
+            if (customHeaders && customHeaders.length > 0) {
+                const headersStr = customHeaders.map(header => 
+                    `    '${header.key}': '${header.value}',`
+                ).join('\n');
+                customHeadersCode = `custom_headers = {\n${headersStr}\n}`;
+            } else {
+                customHeadersCode = `custom_headers = {}`;
+            }
+            
+            // 处理请求体
+            let bodyCode = '';
+            let dataParam = '';
+            if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                bodyCode = `request_body = '''${requestBody}'''`;
+                dataParam = ', data=request_body';
+            } else {
+                bodyCode = `request_body = ''`;
+            }
+            
+            return `#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+TOS API 签名请求示例 - Python3 完整实现
+包含完整的 TOS4-HMAC-SHA256 签名算法
+安装依赖: pip install requests
+"""
+
+import requests
+import hashlib
+import hmac
+from datetime import datetime
+from urllib.parse import quote, urlencode
+import json
+
+def calculate_tos_signature():
+    # 配置参数
+    access_key = '${accessKey}'
+    secret_key = '${secretKey}'
+    region = '${region}'
+    service = '${service}'
+    
+    # 请求参数
+    method = '${method}'
+    host = '${host}'
+    canonical_uri = '${path}'
+    ${bodyCode}
+    
+    # 查询参数
+    ${queryParamsCode}
+    
+    # 自定义Headers
+    ${customHeadersCode}
+    
+    # 生成时间戳
+    now = datetime.utcnow()
+    amz_date = now.strftime('%Y%m%dT%H%M%SZ')
+    date_stamp = now.strftime('%Y%m%d')
+    
+    # 1. 计算 Payload Hash
+    if request_body and method not in ['GET', 'HEAD']:
+        payload_hash = hashlib.sha256(request_body.encode('utf-8')).hexdigest()
+    elif method == 'PUT' and not request_body:
+        payload_hash = 'UNSIGNED-PAYLOAD'
+    else:
+        payload_hash = hashlib.sha256(b'').hexdigest()
+    
+    # 2. 构造查询字符串
+    if query_params:
+        # 按键排序并URL编码
+        sorted_params = sorted(query_params.items())
+        canonical_query_string = '&'.join([f"{quote(k, safe='')}={quote(str(v), safe='')}" for k, v in sorted_params])
+    else:
+        canonical_query_string = ''
+    
+    # 3. 构造Headers
+    headers = {
+        'host': host,
+        'x-tos-date': amz_date,
+        'x-tos-content-sha256': payload_hash
+    }
+    
+    # 添加自定义headers
+    for key, value in custom_headers.items():
+        headers[key.lower()] = value
+    
+    # 添加Content-Type（如果有请求体且未指定）
+    if request_body and method not in ['GET', 'HEAD'] and 'content-type' not in headers:
+        headers['content-type'] = 'application/json'
+    
+    # 按键排序
+    sorted_headers = sorted(headers.items())
+    
+    # 构造canonical headers和signed headers
+    canonical_headers = '\\n'.join([f"{k}:{v}" for k, v in sorted_headers]) + '\\n'
+    signed_headers = ';'.join([k for k, v in sorted_headers])
+    
+    # 4. 构造 Canonical Request
+    canonical_request = '\\n'.join([
+        method,
+        canonical_uri,
+        canonical_query_string,
+        canonical_headers,
+        signed_headers,
+        payload_hash
+    ])
+    
+    print(f"Canonical Request:\\n{canonical_request}\\n")
+    
+    # 5. 构造 String to Sign
+    algorithm = 'TOS4-HMAC-SHA256'
+    credential_scope = f"{date_stamp}/{region}/{service}/request"
+    string_to_sign = '\\n'.join([
+        algorithm,
+        amz_date,
+        credential_scope,
+        hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
+    ])
+    
+    print(f"String to Sign:\\n{string_to_sign}\\n")
+    
+    # 6. 计算签名
+    def sign(key, msg):
+        return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
+    
+    def get_signature_key(key, date_stamp, region_name, service_name):
+        k_date = sign(key.encode('utf-8'), date_stamp)
+        k_region = sign(k_date, region_name)
+        k_service = sign(k_region, service_name)
+        k_signing = sign(k_service, 'request')
+        return k_signing
+    
+    signing_key = get_signature_key(secret_key, date_stamp, region, service)
+    signature = hmac.new(signing_key, string_to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
+    
+    print(f"Signature: {signature}\\n")
+    
+    # 7. 构造Authorization header
+    authorization_header = f"{algorithm} Credential={access_key}/{credential_scope}, SignedHeaders={signed_headers}, Signature={signature}"
+    
+    # 8. 准备最终请求
+    final_headers = {}
+    for k, v in headers.items():
+        # 转换回原始大小写格式
+        if k == 'host':
+            final_headers['Host'] = v
+        elif k == 'x-tos-date':
+            final_headers['x-tos-date'] = v
+        elif k == 'x-tos-content-sha256':
+            final_headers['x-tos-content-sha256'] = v
+        else:
+            final_headers[k] = v
+    
+    final_headers['Authorization'] = authorization_header
+    
+    # 构造完整URL
+    url = f"https://{host}{canonical_uri}"
+    if canonical_query_string:
+        url += f"?{canonical_query_string}"
+    
+    print(f"Final URL: {url}")
+    print(f"Final Headers: {json.dumps(final_headers, indent=2)}\\n")
+    
+    # 9. 发送请求
+    try:
+        response = requests.request(method, url, headers=final_headers${dataParam})
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Headers: {dict(response.headers)}")
+        
+        # 根据响应类型处理内容
+        content_type = response.headers.get('content-type', '').lower()
+        if 'application/json' in content_type:
+            try:
+                print(f"Response JSON: {response.json()}")
+            except:
+                print(f"Response Text: {response.text}")
+        elif 'text/' in content_type:
+            print(f"Response Text: {response.text}")
+        else:
+            print(f"Response Content Length: {len(response.content)} bytes")
+            # 对于二进制内容，可以保存到文件
+            # with open('downloaded_file', 'wb') as f:
+            #     f.write(response.content)
+            #     print("文件已保存为 downloaded_file")
+            
+    except requests.exceptions.RequestException as e:
+        print(f"请求失败: {e}")
+
+if __name__ == '__main__':
+    calculate_tos_signature()`;
+        }
+
+        // 生成 Golang 代码
+        function generateGolangCode(options) {
+            const { method, host, path, requestBody, customHeaders, canonicalQueryString, accessKey, secretKey, region, service } = options;
+            
+            // 构建查询参数代码
+            let queryParamsCode = '';
+            if (canonicalQueryString) {
+                const params = canonicalQueryString.split('&').map(param => {
+                    const [key, value = ''] = param.split('=');
+                    return `\t\t"${decodeURIComponent(key)}": "${decodeURIComponent(value)}",`;
+                }).join('\n');
+                queryParamsCode = `\tqueryParams := map[string]string{\n${params}\n\t}`;
+            } else {
+                queryParamsCode = `\tqueryParams := map[string]string{}`;
+            }
+            
+            // 处理自定义headers
+            let customHeadersCode = '';
+            if (customHeaders && customHeaders.length > 0) {
+                const headersStr = customHeaders.map(header => 
+                    `\t\t"${header.key}": "${header.value}",`
+                ).join('\n');
+                customHeadersCode = `\tcustomHeaders := map[string]string{\n${headersStr}\n\t}`;
+            } else {
+                customHeadersCode = `\tcustomHeaders := map[string]string{}`;
+            }
+            
+            // 处理请求体
+            let bodyCode = '';
+            if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                bodyCode = `\trequestBody := \`${requestBody}\``;
+            } else {
+                bodyCode = `\trequestBody := ""`;
+            }
+            
+            return `package main
+
+import (
+\t"crypto/hmac"
+\t"crypto/sha256"
+\t"encoding/hex"
+\t"fmt"
+\t"io"
+\t"net/http"
+\t"net/url"
+\t"sort"
+\t"strings"
+\t"time"
+)
+
+// TOS API 签名请求示例 - Golang 完整实现
+// 包含完整的 TOS4-HMAC-SHA256 签名算法
+// 使用标准库 net/http 发送 HTTP 请求
+
+func main() {
+\t// 配置参数
+\taccessKey := "${accessKey}"
+\tsecretKey := "${secretKey}"
+\tregion := "${region}"
+\tservice := "${service}"
+\t
+\t// 请求参数
+\tmethod := "${method}"
+\thost := "${host}"
+\tcanonicalURI := "${path}"
+\t${bodyCode}
+\t
+\t// 查询参数
+${queryParamsCode}
+\t
+\t// 自定义Headers
+${customHeadersCode}
+\t
+\t// 生成时间戳
+\tnow := time.Now().UTC()
+\tamzDate := now.Format("20060102T150405Z")
+\tdateStamp := now.Format("20060102")
+\t
+\t// 1. 计算 Payload Hash
+\tvar payloadHash string
+\tif requestBody != "" && method != "GET" && method != "HEAD" {
+\t\thash := sha256.Sum256([]byte(requestBody))
+\t\tpayloadHash = hex.EncodeToString(hash[:])
+\t} else if method == "PUT" && requestBody == "" {
+\t\tpayloadHash = "UNSIGNED-PAYLOAD"
+\t} else {
+\t\thash := sha256.Sum256([]byte(""))
+\t\tpayloadHash = hex.EncodeToString(hash[:])
+\t}
+\t
+\t// 2. 构造查询字符串
+\tvar canonicalQueryString string
+\tif len(queryParams) > 0 {
+\t\t// 按键排序并URL编码
+\t\tkeys := make([]string, 0, len(queryParams))
+\t\tfor k := range queryParams {
+\t\t\tkeys = append(keys, k)
+\t\t}
+\t\tsort.Strings(keys)
+\t\t
+\t\tqueryParts := make([]string, 0, len(keys))
+\t\tfor _, k := range keys {
+\t\t\tqueryParts = append(queryParts, url.QueryEscape(k)+"="+url.QueryEscape(queryParams[k]))
+\t\t}
+\t\tcanonicalQueryString = strings.Join(queryParts, "&")
+\t}
+\t
+\t// 3. 构造Headers
+\theaders := map[string]string{
+\t\t"host":                   host,
+\t\t"x-tos-date":            amzDate,
+\t\t"x-tos-content-sha256":  payloadHash,
+\t}
+\t
+\t// 添加自定义headers
+\tfor key, value := range customHeaders {
+\t\theaders[strings.ToLower(key)] = value
+\t}
+\t
+\t// 添加Content-Type（如果有请求体且未指定）
+\tif requestBody != "" && method != "GET" && method != "HEAD" {
+\t\tif _, exists := headers["content-type"]; !exists {
+\t\t\theaders["content-type"] = "application/json"
+\t\t}
+\t}
+\t
+\t// 按键排序
+\theaderKeys := make([]string, 0, len(headers))
+\tfor k := range headers {
+\t\theaderKeys = append(headerKeys, k)
+\t}
+\tsort.Strings(headerKeys)
+\t
+\t// 构造canonical headers和signed headers
+\tcanonicalHeaders := ""
+\tfor _, k := range headerKeys {
+\t\tcanonicalHeaders += k + ":" + headers[k] + "\\n"
+\t}
+\tsignedHeaders := strings.Join(headerKeys, ";")
+\t
+\t// 4. 构造 Canonical Request
+\tcanonicalRequest := strings.Join([]string{
+\t\tmethod,
+\t\tcanonicalURI,
+\t\tcanonicalQueryString,
+\t\tcanonicalHeaders,
+\t\tsignedHeaders,
+\t\tpayloadHash,
+\t}, "\\n")
+\t
+\tfmt.Printf("Canonical Request:\\n%s\\n\\n", canonicalRequest)
+\t
+\t// 5. 构造 String to Sign
+\talgorithm := "TOS4-HMAC-SHA256"
+\tcredentialScope := fmt.Sprintf("%s/%s/%s/request", dateStamp, region, service)
+\t
+\thash := sha256.Sum256([]byte(canonicalRequest))
+\tstringToSign := strings.Join([]string{
+\t\talgorithm,
+\t\tamzDate,
+\t\tcredentialScope,
+\t\thex.EncodeToString(hash[:]),
+\t}, "\\n")
+\t
+\tfmt.Printf("String to Sign:\\n%s\\n\\n", stringToSign)
+\t
+\t// 6. 计算签名
+\tsign := func(key []byte, msg string) []byte {
+\t\th := hmac.New(sha256.New, key)
+\t\th.Write([]byte(msg))
+\t\treturn h.Sum(nil)
+\t}
+\t
+\tgetSignatureKey := func(key, dateStamp, regionName, serviceName string) []byte {
+\t\tkDate := sign([]byte(key), dateStamp)
+\t\tkRegion := sign(kDate, regionName)
+\t\tkService := sign(kRegion, serviceName)
+\t\tkSigning := sign(kService, "request")
+\t\treturn kSigning
+\t}
+\t
+\tsigningKey := getSignatureKey(secretKey, dateStamp, region, service)
+\tsignature := hex.EncodeToString(sign(signingKey, stringToSign))
+\t
+\tfmt.Printf("Signature: %s\\n\\n", signature)
+\t
+\t// 7. 构造Authorization header
+\tauthorizationHeader := fmt.Sprintf("%s Credential=%s/%s, SignedHeaders=%s, Signature=%s",
+\t\talgorithm, accessKey, credentialScope, signedHeaders, signature)
+\t
+\t// 8. 准备最终请求
+\tfinalURL := fmt.Sprintf("https://%s%s", host, canonicalURI)
+\tif canonicalQueryString != "" {
+\t\tfinalURL += "?" + canonicalQueryString
+\t}
+\t
+\t// 构造请求体
+\tvar bodyReader io.Reader
+\tif requestBody != "" && method != "GET" && method != "HEAD" {
+\t\tbodyReader = strings.NewReader(requestBody)
+\t}
+\t
+\treq, err := http.NewRequest(method, finalURL, bodyReader)
+\tif err != nil {
+\t\tfmt.Printf("创建请求失败: %v\\n", err)
+\t\treturn
+\t}
+\t
+\t// 设置headers
+\tfor k, v := range headers {
+\t\t// 转换回原始大小写格式
+\t\tswitch k {
+\t\tcase "host":
+\t\t\treq.Header.Set("Host", v)
+\t\tcase "x-tos-date":
+\t\t\treq.Header.Set("x-tos-date", v)
+\t\tcase "x-tos-content-sha256":
+\t\t\treq.Header.Set("x-tos-content-sha256", v)
+\t\tdefault:
+\t\t\treq.Header.Set(k, v)
+\t\t}
+\t}
+\treq.Header.Set("Authorization", authorizationHeader)
+\t
+\tfmt.Printf("Final URL: %s\\n", finalURL)
+\tfmt.Printf("Final Headers: %v\\n\\n", req.Header)
+\t
+\t// 9. 发送请求
+\tclient := &http.Client{
+\t\tTimeout: 30 * time.Second,
+\t}
+\t
+\tresp, err := client.Do(req)
+\tif err != nil {
+\t\tfmt.Printf("请求失败: %v\\n", err)
+\t\treturn
+\t}
+\tdefer resp.Body.Close()
+\t
+\tfmt.Printf("Status Code: %d\\n", resp.StatusCode)
+\tfmt.Printf("Response Headers: %v\\n", resp.Header)
+\t
+\t// 读取响应内容
+\tbody, err := io.ReadAll(resp.Body)
+\tif err != nil {
+\t\tfmt.Printf("读取响应失败: %v\\n", err)
+\t\treturn
+\t}
+\t
+\t// 根据响应类型处理内容
+\tcontentType := resp.Header.Get("Content-Type")
+\tif strings.Contains(strings.ToLower(contentType), "application/json") ||
+\t   strings.Contains(strings.ToLower(contentType), "text/") {
+\t\tfmt.Printf("Response Body: %s\\n", string(body))
+\t} else {
+\t\tfmt.Printf("Response Content Length: %d bytes\\n", len(body))
+\t\t// 对于二进制内容，可以保存到文件
+\t\t// err = os.WriteFile("downloaded_file", body, 0644)
+\t\t// if err != nil {
+\t\t//     fmt.Printf("保存文件失败: %v\\n", err)
+\t\t// } else {
+\t\t//     fmt.Printf("文件已保存为 downloaded_file\\n")
+\t\t// }
+\t}
+}`;
+        }
+
+        // 生成 Java 代码
+        function generateJavaCode(options) {
+            const { method, host, path, requestBody, customHeaders, canonicalQueryString, accessKey, secretKey, region, service } = options;
+            
+            // 构建查询参数代码
+            let queryParamsCode = '';
+            if (canonicalQueryString) {
+                const params = canonicalQueryString.split('&').map(param => {
+                    const [key, value = ''] = param.split('=');
+                    return `        queryParams.put("${decodeURIComponent(key)}", "${decodeURIComponent(value)}");`;
+                }).join('\n');
+                queryParamsCode = `        Map<String, String> queryParams = new HashMap<>();\n${params}`;
+            } else {
+                queryParamsCode = `        Map<String, String> queryParams = new HashMap<>();`;
+            }
+            
+            // 处理自定义headers
+            let customHeadersCode = '';
+            if (customHeaders && customHeaders.length > 0) {
+                const headersStr = customHeaders.map(header => 
+                    `        customHeaders.put("${header.key}", "${header.value}");`
+                ).join('\n');
+                customHeadersCode = `        Map<String, String> customHeaders = new HashMap<>();\n${headersStr}`;
+            } else {
+                customHeadersCode = `        Map<String, String> customHeaders = new HashMap<>();`;
+            }
+            
+            // 处理请求体
+            let bodyCode = '';
+            if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                bodyCode = `        String requestBody = """${requestBody}""";`;
+            } else {
+                bodyCode = `        String requestBody = "";`;
+            }
+            
+            return `import java.io.*;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.*;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+/**
+ * TOS API 签名请求示例 - Java 完整实现
+ * 包含完整的 TOS4-HMAC-SHA256 签名算法
+ * 使用 Java 11+ 的 HttpClient 发送 HTTP 请求
+ * 
+ * 编译运行:
+ * javac TOSSignatureExample.java
+ * java TOSSignatureExample
+ */
+public class TOSSignatureExample {
+    
+    public static void main(String[] args) {
+        try {
+            // 配置参数
+            String accessKey = "${accessKey}";
+            String secretKey = "${secretKey}";
+            String region = "${region}";
+            String service = "${service}";
+            
+            // 请求参数
+            String method = "${method}";
+            String host = "${host}";
+            String canonicalUri = "${path}";
+${bodyCode}
+            
+            // 查询参数
+${queryParamsCode}
+            
+            // 自定义Headers
+${customHeadersCode}
+            
+            // 生成时间戳
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+            SimpleDateFormat dateStampFormat = new SimpleDateFormat("yyyyMMdd");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dateStampFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            
+            Date now = new Date();
+            String amzDate = dateFormat.format(now);
+            String dateStamp = dateStampFormat.format(now);
+            
+            // 1. 计算 Payload Hash
+            String payloadHash;
+            if (!requestBody.isEmpty() && !method.equals("GET") && !method.equals("HEAD")) {
+                payloadHash = sha256Hex(requestBody);
+            } else if (method.equals("PUT") && requestBody.isEmpty()) {
+                payloadHash = "UNSIGNED-PAYLOAD";
+            } else {
+                payloadHash = sha256Hex("");
+            }
+            
+            // 2. 构造查询字符串
+            String canonicalQueryString = "";
+            if (!queryParams.isEmpty()) {
+                List<String> sortedKeys = new ArrayList<>(queryParams.keySet());
+                Collections.sort(sortedKeys);
+                
+                List<String> queryParts = new ArrayList<>();
+                for (String key : sortedKeys) {
+                    queryParts.add(urlEncode(key) + "=" + urlEncode(queryParams.get(key)));
+                }
+                canonicalQueryString = String.join("&", queryParts);
+            }
+            
+            // 3. 构造Headers
+            Map<String, String> headers = new TreeMap<>(); // TreeMap自动排序
+            headers.put("host", host);
+            headers.put("x-tos-date", amzDate);
+            headers.put("x-tos-content-sha256", payloadHash);
+            
+            // 添加自定义headers
+            for (Map.Entry<String, String> entry : customHeaders.entrySet()) {
+                headers.put(entry.getKey().toLowerCase(), entry.getValue());
+            }
+            
+            // 添加Content-Type（如果有请求体且未指定）
+            if (!requestBody.isEmpty() && !method.equals("GET") && !method.equals("HEAD")) {
+                if (!headers.containsKey("content-type")) {
+                    headers.put("content-type", "application/json");
+                }
+            }
+            
+            // 构造canonical headers和signed headers
+            StringBuilder canonicalHeaders = new StringBuilder();
+            List<String> signedHeadersList = new ArrayList<>();
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                canonicalHeaders.append(entry.getKey()).append(":").append(entry.getValue()).append("\\n");
+                signedHeadersList.add(entry.getKey());
+            }
+            String signedHeaders = String.join(";", signedHeadersList);
+            
+            // 4. 构造 Canonical Request
+            String canonicalRequest = String.join("\\n",
+                method,
+                canonicalUri,
+                canonicalQueryString,
+                canonicalHeaders.toString(),
+                signedHeaders,
+                payloadHash
+            );
+            
+            System.out.println("Canonical Request:\\n" + canonicalRequest + "\\n");
+            
+            // 5. 构造 String to Sign
+            String algorithm = "TOS4-HMAC-SHA256";
+            String credentialScope = dateStamp + "/" + region + "/" + service + "/request";
+            String stringToSign = String.join("\\n",
+                algorithm,
+                amzDate,
+                credentialScope,
+                sha256Hex(canonicalRequest)
+            );
+            
+            System.out.println("String to Sign:\\n" + stringToSign + "\\n");
+            
+            // 6. 计算签名
+            byte[] signingKey = getSignatureKey(secretKey, dateStamp, region, service);
+            String signature = hmacSha256Hex(signingKey, stringToSign);
+            
+            System.out.println("Signature: " + signature + "\\n");
+            
+            // 7. 构造Authorization header
+            String authorizationHeader = String.format(
+                "%s Credential=%s/%s, SignedHeaders=%s, Signature=%s",
+                algorithm, accessKey, credentialScope, signedHeaders, signature
+            );
+            
+            // 8. 准备最终请求
+            String finalUrl = "https://" + host + canonicalUri;
+            if (!canonicalQueryString.isEmpty()) {
+                finalUrl += "?" + canonicalQueryString;
+            }
+            
+            HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(30))
+                .build();
+            
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(finalUrl))
+                .timeout(Duration.ofSeconds(30));
+            
+            // 设置请求方法和请求体
+            if (!requestBody.isEmpty() && !method.equals("GET") && !method.equals("HEAD")) {
+                requestBuilder.method(method, HttpRequest.BodyPublishers.ofString(requestBody));
+            } else {
+                requestBuilder.method(method, HttpRequest.BodyPublishers.noBody());
+            }
+            
+            // 设置headers
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                String headerName = entry.getKey();
+                // 转换回原始大小写格式
+                switch (headerName) {
+                    case "host":
+                        requestBuilder.header("Host", entry.getValue());
+                        break;
+                    case "x-tos-date":
+                        requestBuilder.header("x-tos-date", entry.getValue());
+                        break;
+                    case "x-tos-content-sha256":
+                        requestBuilder.header("x-tos-content-sha256", entry.getValue());
+                        break;
+                    default:
+                        requestBuilder.header(headerName, entry.getValue());
+                        break;
+                }
+            }
+            requestBuilder.header("Authorization", authorizationHeader);
+            
+            HttpRequest request = requestBuilder.build();
+            
+            System.out.println("Final URL: " + finalUrl);
+            System.out.println("Final Headers: " + request.headers().map() + "\\n");
+            
+            // 9. 发送请求
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            System.out.println("Status Code: " + response.statusCode());
+            System.out.println("Response Headers: " + response.headers().map());
+            
+            // 根据响应类型处理内容
+            String contentType = response.headers().firstValue("content-type").orElse("").toLowerCase();
+            if (contentType.contains("application/json") || contentType.contains("text/")) {
+                System.out.println("Response Body: " + response.body());
+            } else {
+                System.out.println("Response Content Length: " + response.body().length() + " characters");
+                // 对于二进制内容，可以保存到文件
+                // Files.write(Paths.get("downloaded_file"), response.body().getBytes());
+                // System.out.println("文件已保存为 downloaded_file");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("请求失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // 计算 SHA256 哈希值
+    private static String sha256Hex(String input) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+        return bytesToHex(hash);
+    }
+    
+    // 计算 HMAC-SHA256
+    private static byte[] hmacSha256(byte[] key, String data) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "HmacSHA256");
+        mac.init(secretKeySpec);
+        return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+    }
+    
+    // 计算 HMAC-SHA256 并返回十六进制字符串
+    private static String hmacSha256Hex(byte[] key, String data) throws Exception {
+        return bytesToHex(hmacSha256(key, data));
+    }
+    
+    // 获取签名密钥
+    private static byte[] getSignatureKey(String key, String dateStamp, String regionName, String serviceName) throws Exception {
+        byte[] kDate = hmacSha256(key.getBytes(StandardCharsets.UTF_8), dateStamp);
+        byte[] kRegion = hmacSha256(kDate, regionName);
+        byte[] kService = hmacSha256(kRegion, serviceName);
+        byte[] kSigning = hmacSha256(kService, "request");
+        return kSigning;
+    }
+    
+    // 字节数组转十六进制字符串
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+    
+    // URL编码
+    private static String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString())
+                .replace("+", "%20")
+                .replace("*", "%2A")
+                .replace("%7E", "~");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}`;
+        }
+
+        // 生成 Node.js 代码
+        function generateNodejsCode(options) {
+            const { method, host, path, requestBody, customHeaders, canonicalQueryString, accessKey, secretKey, region, service } = options;
+            
+            // 构建查询参数代码
+            let queryParamsCode = '';
+            if (canonicalQueryString) {
+                const params = canonicalQueryString.split('&').map(param => {
+                    const [key, value = ''] = param.split('=');
+                    return `    '${decodeURIComponent(key)}': '${decodeURIComponent(value)}',`;
+                }).join('\n');
+                queryParamsCode = `const queryParams = {\n${params}\n};`;
+            } else {
+                queryParamsCode = `const queryParams = {};`;
+            }
+            
+            // 处理自定义headers
+            let customHeadersCode = '';
+            if (customHeaders && customHeaders.length > 0) {
+                const headersStr = customHeaders.map(header => 
+                    `    '${header.key}': '${header.value}',`
+                ).join('\n');
+                customHeadersCode = `const customHeaders = {\n${headersStr}\n};`;
+            } else {
+                customHeadersCode = `const customHeaders = {};`;
+            }
+            
+            // 处理请求体
+            let bodyCode = '';
+            if (requestBody && method !== 'GET' && method !== 'HEAD') {
+                bodyCode = `const requestBody = \`${requestBody}\`;`;
+            } else {
+                bodyCode = `const requestBody = '';`;
+            }
+            
+            return `#!/usr/bin/env node
+
+/**
+ * TOS API 签名请求示例 - Node.js 完整实现
+ * 包含完整的 TOS4-HMAC-SHA256 签名算法
+ * 使用 Node.js 内置模块发送 HTTP 请求
+ * 
+ * 运行: node tos-signature-example.js
+ * 依赖: Node.js 14+ (使用内置模块，无需额外安装依赖)
+ */
+
+const crypto = require('crypto');
+const https = require('https');
+const { URL, URLSearchParams } = require('url');
+
+async function calculateTOSSignature() {
+    try {
+        // 配置参数
+        const accessKey = '${accessKey}';
+        const secretKey = '${secretKey}';
+        const region = '${region}';
+        const service = '${service}';
+        
+        // 请求参数
+        const method = '${method}';
+        const host = '${host}';
+        const canonicalUri = '${path}';
+        ${bodyCode}
+        
+        // 查询参数
+        ${queryParamsCode}
+        
+        // 自定义Headers
+        ${customHeadersCode}
+        
+        // 生成时间戳
+        const now = new Date();
+        const amzDate = now.toISOString().replace(/[:-]|\\.\\d{3}/g, '');
+        const dateStamp = amzDate.substr(0, 8);
+        
+        // 1. 计算 Payload Hash
+        let payloadHash;
+        if (requestBody && method !== 'GET' && method !== 'HEAD') {
+            payloadHash = crypto.createHash('sha256').update(requestBody, 'utf8').digest('hex');
+        } else if (method === 'PUT' && !requestBody) {
+            payloadHash = 'UNSIGNED-PAYLOAD';
+        } else {
+            payloadHash = crypto.createHash('sha256').update('', 'utf8').digest('hex');
+        }
+        
+        // 2. 构造查询字符串
+        let canonicalQueryString = '';
+        if (Object.keys(queryParams).length > 0) {
+            const sortedKeys = Object.keys(queryParams).sort();
+            const queryParts = sortedKeys.map(key => {
+                return encodeURIComponent(key) + '=' + encodeURIComponent(queryParams[key]);
+            });
+            canonicalQueryString = queryParts.join('&');
+        }
+        
+        // 3. 构造Headers
+        const headers = {
+            'host': host,
+            'x-tos-date': amzDate,
+            'x-tos-content-sha256': payloadHash
+        };
+        
+        // 添加自定义headers
+        for (const [key, value] of Object.entries(customHeaders)) {
+            headers[key.toLowerCase()] = value;
+        }
+        
+        // 添加Content-Type（如果有请求体且未指定）
+        if (requestBody && method !== 'GET' && method !== 'HEAD') {
+            if (!headers['content-type']) {
+                headers['content-type'] = 'application/json';
+            }
+        }
+        
+        // 按键排序
+        const sortedHeaders = Object.keys(headers).sort().reduce((result, key) => {
+            result[key] = headers[key];
+            return result;
+        }, {});
+        
+        // 构造canonical headers和signed headers
+        const canonicalHeaders = Object.entries(sortedHeaders)
+            .map(([key, value]) => \`\${key}:\${value}\\n\`)
+            .join('');
+        const signedHeaders = Object.keys(sortedHeaders).join(';');
+        
+        // 4. 构造 Canonical Request
+        const canonicalRequest = [
+            method,
+            canonicalUri,
+            canonicalQueryString,
+            canonicalHeaders,
+            signedHeaders,
+            payloadHash
+        ].join('\\n');
+        
+        console.log(\`Canonical Request:\\n\${canonicalRequest}\\n\`);
+        
+        // 5. 构造 String to Sign
+        const algorithm = 'TOS4-HMAC-SHA256';
+        const credentialScope = \`\${dateStamp}/\${region}/\${service}/request\`;
+        const stringToSign = [
+            algorithm,
+            amzDate,
+            credentialScope,
+            crypto.createHash('sha256').update(canonicalRequest, 'utf8').digest('hex')
+        ].join('\\n');
+        
+        console.log(\`String to Sign:\\n\${stringToSign}\\n\`);
+        
+        // 6. 计算签名
+        function sign(key, msg) {
+            return crypto.createHmac('sha256', key).update(msg, 'utf8').digest();
+        }
+        
+        function getSignatureKey(key, dateStamp, regionName, serviceName) {
+            const kDate = sign(key, dateStamp);
+            const kRegion = sign(kDate, regionName);
+            const kService = sign(kRegion, serviceName);
+            const kSigning = sign(kService, 'request');
+            return kSigning;
+        }
+        
+        const signingKey = getSignatureKey(secretKey, dateStamp, region, service);
+        const signature = crypto.createHmac('sha256', signingKey)
+            .update(stringToSign, 'utf8')
+            .digest('hex');
+        
+        console.log(\`Signature: \${signature}\\n\`);
+        
+        // 7. 构造Authorization header
+        const authorizationHeader = \`\${algorithm} Credential=\${accessKey}/\${credentialScope}, SignedHeaders=\${signedHeaders}, Signature=\${signature}\`;
+        
+        // 8. 准备最终请求
+        let finalUrl = \`https://\${host}\${canonicalUri}\`;
+        if (canonicalQueryString) {
+            finalUrl += \`?\${canonicalQueryString}\`;
+        }
+        
+        // 构造最终headers
+        const finalHeaders = {};
+        for (const [key, value] of Object.entries(sortedHeaders)) {
+            // 转换回原始大小写格式
+            switch (key) {
+                case 'host':
+                    finalHeaders['Host'] = value;
+                    break;
+                case 'x-tos-date':
+                    finalHeaders['x-tos-date'] = value;
+                    break;
+                case 'x-tos-content-sha256':
+                    finalHeaders['x-tos-content-sha256'] = value;
+                    break;
+                default:
+                    finalHeaders[key] = value;
+                    break;
+            }
+        }
+        finalHeaders['Authorization'] = authorizationHeader;
+        
+        // 添加Content-Length（如果有请求体）
+        if (requestBody) {
+            finalHeaders['Content-Length'] = Buffer.byteLength(requestBody, 'utf8');
+        }
+        
+        console.log(\`Final URL: \${finalUrl}\`);
+        console.log(\`Final Headers:\`, JSON.stringify(finalHeaders, null, 2));
+        console.log('');
+        
+        // 9. 发送请求
+        const urlObj = new URL(finalUrl);
+        const options = {
+            hostname: urlObj.hostname,
+            port: urlObj.port || 443,
+            path: urlObj.pathname + urlObj.search,
+            method: method,
+            headers: finalHeaders,
+            timeout: 30000
+        };
+        
+        const response = await makeRequest(options, requestBody);
+        
+        console.log(\`Status Code: \${response.statusCode}\`);
+        console.log(\`Response Headers:\`, response.headers);
+        
+        // 根据响应类型处理内容
+        const contentType = (response.headers['content-type'] || '').toLowerCase();
+        if (contentType.includes('application/json')) {
+            try {
+                const jsonData = JSON.parse(response.body);
+                console.log(\`Response JSON:\`, JSON.stringify(jsonData, null, 2));
+            } catch (e) {
+                console.log(\`Response Text: \${response.body}\`);
+            }
+        } else if (contentType.includes('text/')) {
+            console.log(\`Response Text: \${response.body}\`);
+        } else {
+            console.log(\`Response Content Length: \${response.body.length} bytes\`);
+            // 对于二进制内容，可以保存到文件
+            // const fs = require('fs');
+            // fs.writeFileSync('downloaded_file', response.body);
+            // console.log('文件已保存为 downloaded_file');
+        }
+        
+    } catch (error) {
+        console.error('请求失败:', error.message);
+    }
+}
+
+// Promise化的HTTP请求
+function makeRequest(options, data) {
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let body = '';
+            res.on('data', (chunk) => {
+                body += chunk;
+            });
+            res.on('end', () => {
+                resolve({
+                    statusCode: res.statusCode,
+                    headers: res.headers,
+                    body: body
+                });
+            });
+        });
+        
+        req.on('error', (error) => {
+            reject(error);
+        });
+        
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request timeout'));
+        });
+        
+        if (data) {
+            req.write(data);
+        }
+        
+        req.end();
+    });
+}
+
+// 运行示例
+if (require.main === module) {
+    calculateTOSSignature();
+}
+
+module.exports = { calculateTOSSignature };`;
         }
 
         // 生成 cURL 请求
@@ -1874,23 +3282,69 @@ flowchart TD
         // 复制 cURL 命令到剪贴板
         function copyCurl() {
             const curlText = document.getElementById('curlRequestOutput').textContent;
+            copyToClipboard(curlText, 'copyCurlBtn', '复制 cURL 命令');
+        }
+        
+        
+        // 统一的代码复制功能
+        function copyCode(language) {
+            const languageConfig = {
+                python: {
+                    elementId: 'pythonCodeOutput',
+                    buttonId: 'copyPythonBtn',
+                    buttonText: '复制代码'
+                },
+                golang: {
+                    elementId: 'golangCodeOutput',
+                    buttonId: 'copyGolangBtn',
+                    buttonText: '复制代码'
+                },
+                java: {
+                    elementId: 'javaCodeOutput',
+                    buttonId: 'copyJavaBtn',
+                    buttonText: '复制代码'
+                },
+                nodejs: {
+                    elementId: 'nodejsCodeOutput',
+                    buttonId: 'copyNodejsBtn',
+                    buttonText: '复制代码'
+                }
+            };
             
+            const config = languageConfig[language];
+            if (!config) {
+                console.error('Unknown language:', language);
+                return;
+            }
+            
+            const codeText = document.getElementById(config.elementId).textContent;
+            copyToClipboard(codeText, config.buttonId, config.buttonText);
+        }
+        
+        // 保持向后兼容的函数
+        function copyPythonCode() { copyCode('python'); }
+        function copyGolangCode() { copyCode('golang'); }
+        function copyJavaCode() { copyCode('java'); }
+        function copyNodejsCode() { copyCode('nodejs'); }
+        
+        // 通用复制到剪贴板函数
+        function copyToClipboard(text, buttonId, originalText) {
             if (navigator.clipboard && window.isSecureContext) {
                 // 使用现代剪贴板 API
-                navigator.clipboard.writeText(curlText).then(() => {
-                    showCopySuccess();
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(buttonId, originalText);
                 }).catch(err => {
                     console.error('复制失败:', err);
-                    fallbackCopy(curlText);
+                    fallbackCopy(text, buttonId, originalText);
                 });
             } else {
                 // 降级到传统方法
-                fallbackCopy(curlText);
+                fallbackCopy(text, buttonId, originalText);
             }
         }
         
         // 降级复制方法
-        function fallbackCopy(text) {
+        function fallbackCopy(text, buttonId, originalText) {
             const textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
@@ -1902,7 +3356,7 @@ flowchart TD
             
             try {
                 document.execCommand('copy');
-                showCopySuccess();
+                showCopySuccess(buttonId, originalText);
             } catch (err) {
                 console.error('复制失败:', err);
                 alert('复制失败，请手动选择并复制文本');
@@ -1910,11 +3364,10 @@ flowchart TD
                 document.body.removeChild(textArea);
             }
         }
-        
+
         // 显示复制成功反馈
-        function showCopySuccess() {
-            const btn = document.getElementById('copyCurlBtn');
-            const originalText = btn.textContent;
+        function showCopySuccess(buttonId = 'copyCurlBtn', originalText = '复制 cURL 命令') {
+            const btn = document.getElementById(buttonId);
             btn.textContent = '已复制!';
             btn.style.backgroundColor = 'var(--aws-green)';
             btn.style.color = 'white';
